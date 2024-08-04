@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Update To Do{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Update Task</h1>
+        <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Home</a></li>
+              <li class="breadcrumb-item active">Update Task</li>
+            </ol>
+          </nav>
+      </div><!-- End Page Title -->
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"></h5>
+                        <!-- General Form Elements -->
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="row mb-3">
+                                <label for="id_title" class="col-sm-2 col-form-label"><strong>{{ form.title.label }}</strong></label>
+                                <div class="col-sm-10">
+                                    {{ form.title }}
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Added by:</label>
+                                <div class="col-sm-10">
+                                  <input type="text" class="form-control" value="{{ task.user }} on {{ task.created_at }}" disabled>
+                                </div>
+                              </div>
+                            <div class="row mb-3">
+                                <label for="id_due_date" class="col-sm-2 col-form-label">{{ form.due_date.label }}</label>
+                                <div class="col-sm-10">
+                                    {{ form.due_date }}
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="id_description" class="col-sm-2 col-form-label">{{ form.description.label }}</label>
+                                <div class="col-sm-10">
+                                    {{ form.description }}
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="id_category" class="col-sm-2 col-form-label">{{ form.priority.label }}</label>
+                                <div class="col-sm-10">
+                                    {{ form.priority }}
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="id_category" class="col-sm-2 col-form-label">{{ form.category.label }}</label>
+                                <div class="col-sm-10">
+                                    {{ form.category }}
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <legend class="col-form-label col-sm-2 pt-0">Complete</legend>
+                                <div class="col-sm-10">
+                                  <div class="form-check">
+                                    {{ form.completed }}
+                                  </div>
+                                </div>
+                              </div>
+                            <div class="row mb-3">
+                                <legend class="col-form-label col-sm-2 pt-0">Bookmark</legend>
+                                <div class="col-sm-10">
+                                  <div class="form-check">
+                                    {{ form.bookmarked }}
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label"></label>
+                                <div class="col-sm-10">
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                    <a class="btn btn-danger" href="{% url 'delete_task' task.pk %}" role="button">Delete</a>
+                                </div>
+                            </div>
+                        </form><!-- End General Form Elements -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section">
+        <div class="row align-items-top">
+            <div class="col-lg-8">
+                <!-- Card with titles, buttons, and links -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Comments</h5>
+                        <a href="{% url 'add_comment' task.pk %}" class="card-link">Add a comment</a>
+    
+                        <!-- Loop through each comment associated with the task -->
+                        {% for comment in task.comments.all %}
+                        <div class="comment mb-3">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ comment.name }}</strong>
+                                <div class="filter">
+                                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots" style="color: #aab7cf;"></i></a>
+                                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                        <li><a class="dropdown-item" href="{% url 'edit_comment' comment.pk %}">Edit</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'delete_comment' comment.pk %}">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ comment.date_added }}</h6>
+                            <p>{{ comment.body|safe }}</p>
+                        </div>
+                        <hr class="hr1">
+                        {% endfor %}
+                    </div>
+                </div><!-- End Card with titles, buttons, and links -->
+            </div>
+        </div>
+    </section>
+</main>
+
+{% endblock %}

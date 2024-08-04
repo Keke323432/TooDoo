@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Add Category
+{% endblock %}
+
+{% block content %}
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>Add Category</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Home</a></li>
+                    <li class="breadcrumb-item active">Add Category</li>
+                </ol>
+            </nav>
+        </div><!-- End Page Title -->
+
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title"></h5>
+
+                            <!-- General Form Elements -->
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="mb-3 row">
+                                    <label for="inputText" class="col-sm-2 col-form-label">{{ form.name.label }}</label>
+                                    <div class="col-sm-10">
+                                        {{ form.name }}
+                                    </div>
+                                </div>
+                                <div class="mb-3 row">
+                                    <div class="col-sm-10">
+                                        <button type="submit" class="btn btn-primary">Create</button>
+                                    </div>
+                                </div>
+                            </form><!-- End General Form Elements -->
+
+                        </div><!-- End card-body -->
+                    </div><!-- End card -->
+                </div><!-- End col-lg-8 -->
+            </div><!-- End row -->
+        </section><!-- End section -->
+
+    </main><!-- End main -->
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Completed{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+    <section class="section">
+        <div class="row">
+        <div class="col-lg-8">
+
+            <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Completed</h5>
+                <div>{{ task_count }} Completed • <form id="clear-completed-form" action="{% url 'clear_completed' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <a href="#" onclick="event.preventDefault(); document.getElementById('clear-completed-form').submit();" class="text-link">Clear All</a>
+                </form></div>
+                <!-- Default List group -->
+                <ul class="list-group ">
+                    {% for task in tasks %}
+                        {% if task.completed %}
+                <li class="list-group-item">
+                    <a href="{% url 'update_task' task.pk %}" class="a-list";>{{ task.title }} </a> 
+                </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+        </div>
+        </div>
+    </section>
+
+</main><!-- End #main -->
+{% endblock %}
+
+

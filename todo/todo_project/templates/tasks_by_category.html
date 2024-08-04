@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+    <section class="section">
+        <div class="row">
+        <div class="col-lg-8">  
+            <div class="card">
+                <div class="card-body">
+                <h5 class="card-title">{{ category.name }}</h5>
+
+                <!-- List group With Checkboxes and radios -->
+                <ul class="list-group">
+                    {% for task in cats %}
+                        {% if not task.completed %}
+                            <li class="list-group-item" id="task-{{ task.id }}">
+                                <input type="checkbox" class="form-check-input me-1 task-checkbox" data-task-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
+                                <a href="{% url 'update_task' task.pk %}" class="a-list">{{ task.title }}</a>
+                                {% if task.due_date %} - Due: {{ task.due_date|date:"d M, Y" }}{% endif %}
+                            </li>
+                        {% endif %}
+                        {% empty %}
+                        <li class="list-group-item">No tasks in this category.</li>
+                    {% endfor %}
+                </ul><!-- End List Checkboxes and radios -->
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+</main>
+<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}
