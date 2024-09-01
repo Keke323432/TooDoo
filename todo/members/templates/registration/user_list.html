@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Users List{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1>Users List</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Home</a></li>
+        <li class="breadcrumb-item active">Users List</li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+  
+  <section class="section">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-body" >
+            <h5 class="card-title"> </h5>
+            <!-- Default Table -->
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Position</th>
+                  <th scope="col">Date Joined</th>
+                  <th scope="col"></th>
+                </tr>
+              </thead>
+              <tbody>
+                  {% for user in users %}
+                <tr>
+                  <td><a href="{% url 'user_profile' user.username %}">{{ user.username }}</a></td>
+                  <td>{{ user.profile.job_title }}</td>  <!-- Access job title from profile -->
+                  <td>{{ user.date_joined|date:"Y-m-d" }}</td>  <!-- Format date joined -->
+                  <td>
+                    <a href="{% url 'send_message' user.username %}">Send Message</a>
+                </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+          </table>
+            <!-- List group With badges -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main><!-- End #main -->
+{% endblock %}

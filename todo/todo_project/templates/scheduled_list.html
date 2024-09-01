@@ -30,6 +30,13 @@
                                     {% endif %}
                                 {% if task.due_date %} <span class="bi bi-calendar2-week-fill" ></span> <span class="due-date">{{ task.due_date|date:"d M, Y" }}</span>
                                 {% endif %}
+                                {% if task.assigned_to.all %}
+                                <span class="assigned-user">Assigned to: 
+                                    {% for user in task.assigned_to.all %}
+                                        {{ user.username }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </span>
+                            {% endif %}
                             </li>
                         {% endif %}
                     {% endfor %}
@@ -55,6 +62,13 @@
                                         {% endif %}
                                     {% if task.due_date %} <span class="bi bi-calendar2-week-fill">     <span class="due-date">{{     task.due_date|date:"d M, Y" }}</span>
                                     {% endif %}
+                                    {% if task.assigned_to.all %}
+                                    <span class="assigned-user">Assigned to: 
+                                        {% for user in task.assigned_to.all %}
+                                            {{ user.username }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                {% endif %}
                                 </li>
                             {% endif %}
                         {% endfor %}

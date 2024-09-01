@@ -1197,3 +1197,30 @@ h6 {
 .hr1{
   color:#ffffff; 
 }
+
+
+/* Hide the date initially */
+.message-time {
+  position: relative;
+}
+
+.message-date {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  background-color: #000;
+  color: #fff;
+  padding: 5px;
+  border-radius: 3px;
+  font-size: 0.8em;
+  white-space: nowrap;
+}
+
+/* Show the date on hover */
+.message-time:hover .message-date {
+  visibility: visible;
+  opacity: 1;
+}

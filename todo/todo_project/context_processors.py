@@ -1,4 +1,6 @@
-from .models import Profile, Category
+from .models import Profile, Category,Conversation
+from django.db.models import Max
+
 
 
 
@@ -12,7 +14,21 @@ def profile_context(request):              # this pulls the template globally. C
 
 def category_list(request):
     if request.user.is_authenticated:
-        categories = Category.objects.filter(user=request.user)
+        categories = Category.objects.all()
     else:
         categories = Category.objects.none()  # No categories for unauthenticated users
     return {'categories': categories}
+
+
+
+
+
+
+def latest_conversations(request):
+    if request.user.is_authenticated:
+        # Retrieve conversations for the logged-in user
+        conversations = Conversation.objects.filter(participants=request.user)
+        return {
+            'latest_conversations': conversations
+        }
+    return {}

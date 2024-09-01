@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'todo_project',
     'members',
     
@@ -55,7 +56,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'todo_project.context_processors.category_list',
-                'todo_project.context_processors.profile_context', 
+                'todo_project.context_processors.profile_context',
+                'todo_project.context_processors.latest_conversations',
+                
                 
             ],
         },

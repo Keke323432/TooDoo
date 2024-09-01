@@ -1,11 +1,12 @@
 from django import forms
-from .models import Task, Category, Comment
-
+from .models import Task, Category, Comment, Message
+from django.contrib.auth.models import User
 
 class EditForm(forms.ModelForm):
+    assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}))
     class Meta:
         model = Task
-        fields = ['title', 'due_date', 'category', 'description', 'completed','priority','bookmarked']
+        fields = ['title', 'due_date', 'category', 'description', 'completed','priority','bookmarked','assigned_to']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', }),
             'description': forms.Textarea(attrs={'class': 'tinymce-editor'}),
@@ -14,19 +15,25 @@ class EditForm(forms.ModelForm):
             'due_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'priority': forms.Select(attrs={'class': 'form-control'}),
             'bookmarked': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'assigned_to':forms.Select(attrs={'class': 'form-control'})
+            
         }
 
 
 class CreateForm(forms.ModelForm):
-
+    assigned_to = forms.ModelChoiceField(
+        queryset=User.objects.all(), 
+        required=False, 
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
     class Meta:
         model = Task
-        fields = ['title', 'due_date', 'category',  'description','priority']
+        fields = ['title', 'due_date', 'category', 'description', 'priority', 'assigned_to']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'tinymce-editor'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
-            # Date input widget
             'due_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'priority': forms.Select(attrs={'class': 'form-control'}),
         }
@@ -34,11 +41,12 @@ class CreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)  # Get the logged-in user
         super(CreateForm, self).__init__(*args, **kwargs)
-
+        
+        # If user is provided, filter categories by the logged-in user for specific cases
         if user:
-            # Filter categories by the logged-in user
-            self.fields['category'].queryset = Category.objects.filter(
-                user=user)
+            self.fields['category'].queryset = Category.objects.all()
+        else:
+            self.fields['category'].queryset = Category.objects.all()
 
 
 class TaskCompleteForm(forms.ModelForm):
@@ -80,4 +88,13 @@ class CommentForm(forms.ModelForm):
         fields = ['body']
         widgets = {
             'body': forms.Textarea(attrs={'class': 'form-control'}),
+        }
+
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = [ 'body']
+        widgets = {
+            'body': forms.Textarea(attrs={'class': 'form-control', }),
         }

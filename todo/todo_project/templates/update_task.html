@@ -40,6 +40,12 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
+                                <label for="id_due_date" class="col-sm-2 col-form-label">Assigned To:</label>
+                                <div class="col-sm-10">
+                                    {{ form.assigned_to }}
+                                </div>
+                            </div>
+                            <div class="row mb-3">
                                 <label for="id_description" class="col-sm-2 col-form-label">{{ form.description.label }}</label>
                                 <div class="col-sm-10">
                                     {{ form.description }}

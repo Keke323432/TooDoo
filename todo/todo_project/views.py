@@ -3,42 +3,95 @@ from django.views.generic.base import ContextMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, RedirectView
 from .models import Task, Category, Comment
 # only logged in users can access this view
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from .forms import EditForm, CreateForm,CommentForm,AddCategoryForm
-from django.shortcuts import get_object_or_404, redirect
+from .forms import EditForm, CreateForm, CommentForm, AddCategoryForm
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from .models import Conversation, ActivityLog
+from .forms import MessageForm
+from django.db.models import Q
+from datetime import timedelta
 
 
 class TaskCountsMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        context['all_tasks_count'] = Task.objects.filter(user=user, completed = False).count()
-        context['scheduled_tasks_count'] = Task.objects.filter(user=user, due_date__gte=timezone.now(), completed=False).count()
-        context['overdue_tasks_count'] = Task.objects.filter(user=user, due_date__lt=timezone.now(), completed=False).count()
-        context['completed_tasks_count'] = Task.objects.filter(user=user, completed=True).count()
-        context['low_tasks_count'] = Task.objects.filter(user=user, priority='low' ,completed=False).count()
-        context['medium_tasks_count'] = Task.objects.filter(user=user, priority='medium' ,completed=False).count()
-        context['high_tasks_count'] = Task.objects.filter(user=user, priority='high' ,completed=False).count()
-        context['urgent_tasks_count'] = Task.objects.filter(user=user, priority='urgent' ,completed=False).count()
+
+        # Counts tasks where the user is either the creator or assigned to the task
+        context['all_tasks_count'] = Task.objects.filter(
+            Q(user=user) | Q(assigned_to=user),
+            completed=False
+        ).count()
+
+        context['scheduled_tasks_count'] = Task.objects.filter(
+            Q(user=user) | Q(assigned_to=user),
+            due_date__gte=timezone.now(),
+            completed=False
+        ).count()
+
+        context['overdue_tasks_count'] = Task.objects.filter(
+            Q(user=user) | Q(assigned_to=user),
+            due_date__lt=timezone.now(),
+            completed=False
+        ).count()
+
+        context['completed_tasks_count'] = Task.objects.filter(
+            Q(user=user) | Q(assigned_to=user),
+            completed=True
+        ).count()
+
+        context['low_tasks_count'] = Task.objects.filter(
+            Q(user=user) | Q(assigned_to=user),
+            priority='low',
+            completed=False
+        ).count()
+
+        context['medium_tasks_count'] = Task.objects.filter(
+            Q(user=user) | Q(assigned_to=user),
+            priority='medium',
+            completed=False
+        ).count()
+
+        context['high_tasks_count'] = Task.objects.filter(
+            Q(user=user) | Q(assigned_to=user),
+            priority='high',
+            completed=False
+        ).count()
+
+        context['urgent_tasks_count'] = Task.objects.filter(
+            Q(user=user) | Q(assigned_to=user),
+            priority='urgent',
+            completed=False
+        ).count()
+
         return context
+
 
 class TaskListView(LoginRequiredMixin, TaskCountsMixin, ListView):
     model = Task
-    template_name = 'task_list.html'
+    template_name = 'task_list.html'  # aka home. too lazy to change names
     context_object_name = 'tasks'  # this can be used in the template to get the objects
 
     def get_queryset(self):
         user = self.request.user
         queryset = Task.objects.filter(user=user)
         return queryset
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
+        context['recent_activities'] = ActivityLog.objects.filter(
+            user=self.request.user,
+            timestamp__gte=timezone.now() - timedelta(hours=1)
+        ).order_by('-timestamp')[:15]
+
         return context
+
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
     model = Task
@@ -65,33 +118,36 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('task_list')
 
     def get_queryset(self):
-        return Task.objects.filter(user=self.request.user)
+        # Include tasks for both the creator and the assignee
+        return Task.objects.filter(
+            Q(user=self.request.user) | Q(assigned_to=self.request.user)
+        )
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         form.fields['category'].queryset = Category.objects.filter(
-            user=self.request.user)
+            Q(user=self.request.user) | Q(user__in=User.objects.filter(
+                task__assigned_to=self.request.user))
+        ).distinct()
         return form
 
 
 class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
     template_name = 'delete_task.html'
+    # Redirect to the list of tasks after deletion
     success_url = reverse_lazy('task_list')
 
     def get_queryset(self):
-        return Task.objects.filter(user=self.request.user)
-    
-    
+        user = self.request.user
+        # Allow access if the user is the creator or is assigned to the task
+        return Task.objects.filter(Q(user=user) | Q(assigned_to=user))
 
 
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     template_name = 'category_list.html'
     context_object_name = 'categories'
-
-    def get_queryset(self):
-        return Category.objects.filter(user=self.request.user)
 
 
 class AddCategoryView(LoginRequiredMixin, CreateView):
@@ -108,22 +164,19 @@ class AddCategoryView(LoginRequiredMixin, CreateView):
 class TaskByCategoryView(LoginRequiredMixin, ListView):
     model = Task
     template_name = 'tasks_by_category.html'
-    context_object_name = 'cats'  # Renamed to better reflect the data
+    context_object_name = 'cats'
 
     def get_queryset(self):
-        # Get the category ID from URL parameters
         category_id = self.kwargs.get('category_id')
-
-        # Fetch the tasks for the given category and ensure they belong to the logged-in user
-        return Task.objects.filter(category_id=category_id, user=self.request.user)
+        # Fetch tasks for the given category; no user restriction
+        return Task.objects.filter(category_id=category_id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         category_id = self.kwargs.get('category_id')
 
-        # Get the category object and ensure it belongs to the logged-in user
-        category = get_object_or_404(
-            Category, id=category_id, user=self.request.user)
+        # Get the category object; no user restriction
+        category = get_object_or_404(Category, id=category_id)
 
         context['category'] = category
         return context
@@ -142,24 +195,15 @@ class AllTaskListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Task.objects.filter(user=user)
+        # Include tasks created by the user or assigned to the user
+        queryset = Task.objects.filter(Q(user=user) | Q(assigned_to=user))
         return queryset
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.filter(user=self.request.user)
-        return context
 
 
 class CompletedTaskListView(LoginRequiredMixin, ListView):
     model = Task
     template_name = 'completed_list.html'
     context_object_name = 'tasks'  # this can be used in the template to get the objects
-
-    def get_queryset(self):
-        user = self.request.user
-        queryset = Task.objects.filter(user=user, completed=True)
-        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -175,9 +219,9 @@ class ScheduledTaskListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
         now = timezone.now()
-        queryset = Task.objects.filter(user=user,  due_date__gte=now, due_date__isnull=False)
+        queryset = Task.objects.filter(
+            user=user,  due_date__gte=now, due_date__isnull=False)
         return queryset
-
 
 
 class OverdueTaskListView(LoginRequiredMixin, ListView):
@@ -244,12 +288,14 @@ class AddCommentView(LoginRequiredMixin, CreateView):
         if form.is_valid():
             comment = form.save(commit=False)
             task = get_object_or_404(Task, id=self.kwargs['task_id'])
-            comment.post = task  # Use 'post' to match the model. Retrieve the related comment from the task
+            # Use 'post' to match the model. Retrieve the related comment from the task
+            comment.post = task
             comment.save()
             # redirects to the same task by taking the id kwargs and shit
             return redirect(reverse_lazy('update_task', kwargs={'pk': task.id}))
         else:
             return self.form_invalid(form)
+
 
 class EditCommentView(LoginRequiredMixin, UpdateView):
     model = Comment
@@ -269,17 +315,19 @@ class EditCommentView(LoginRequiredMixin, UpdateView):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
-        
-class DeleteCommentView(LoginRequiredMixin,DeleteView):
+
+
+class DeleteCommentView(LoginRequiredMixin, DeleteView):
     model = Comment
     template_name = 'delete_comment.html'
     # Since the success URL needs to include the pk of the related task, it cannot be determined statically when defining the class. Instead, it must be calculated based on the specific instance of the comment that is being deleted.
-    def get_success_url(self):  
+
+    def get_success_url(self):
         comment = self.object
         task = comment.post
         return reverse_lazy('update_task', kwargs={'pk': task.pk})
 
-    
+
 class RecurringListView(LoginRequiredMixin, ListView):
     model = Task
     template_name = 'recurring_list.html'
@@ -289,7 +337,7 @@ class RecurringListView(LoginRequiredMixin, ListView):
         user = self.request.user
         queryset = Task.objects.filter(user=user)
         return queryset
-    
+
 
 class BookmarkView(LoginRequiredMixin, ListView):
     model = Task
@@ -300,4 +348,106 @@ class BookmarkView(LoginRequiredMixin, ListView):
         user = self.request.user
         queryset = Task.objects.filter(user=user, bookmarked=True)
         return queryset
+
+
+def inbox(request):
+    # Retrieve all conversations that involve the logged-in user
+    conversations = Conversation.objects.filter(participants=request.user)
+
+    return render(request, 'messaging/inbox.html', {
+        'conversations': conversations,
+    })
+
+
+@login_required
+def send_message(request, username):
+    recipient = get_object_or_404(User, username=username)
+
+    # Get the conversation that includes exactly both the logged-in user and the recipient
+    conversation = Conversation.objects.filter(
+        participants=request.user
+    ).filter(
+        participants=recipient
+    ).distinct()  # Ensure we only get unique conversations
+
+    # There should be only one conversation that includes both users
+    if conversation.exists():
+        conversation = conversation.first()
+    else:
+        # Create a new conversation if none exists
+        conversation = Conversation.objects.create()
+        conversation.participants.add(request.user, recipient)
+        conversation.save()
+
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = request.user
+            message.conversation = conversation
+            message.save()
+            return redirect('message_detail', conversation_id=conversation.id)
+    else:
+        form = MessageForm()
+
+    return render(request, 'messaging/send_message.html', {
+        'form': form,
+        'recipient': recipient,
+    })
+
+
+@login_required
+def message_detail(request, conversation_id):
+    # Retrieve the conversation based on the ID
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+
+    # Ensure that the logged-in user is a participant in the conversation
+    if request.user not in conversation.participants.all():
+        # Redirect to inbox if user is not a participant
+        return redirect('inbox')
+
+    messages = conversation.messages.order_by('created_at')
+
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = request.user
+            message.conversation = conversation
+            message.save()
+            return redirect('message_detail', conversation_id=conversation_id)
+    else:
+        form = MessageForm()
+
+    return render(request, 'messaging/message_detail.html', {
+        'messages': messages,
+        'conversation': conversation,
+        'form': form,
+    })
+
+
+class DeleteMessageView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Conversation
+    template_name = 'messaging/delete_message.html'
+    success_url = reverse_lazy('inbox')  # Redirect to inbox after deletion
+
+    def get_object(self, queryset=None):
+        # Get the conversation object based on the URL parameter
+        return Conversation.objects.get(pk=self.kwargs.get('conversation_id'))
+
+    def test_func(self):
+        """Ensure that only participants of the conversation can delete it."""
+        conversation = self.get_object()
+        return self.request.user in conversation.participants.all()
+
+
+class RecentActivityView(ListView):
+    model = ActivityLog
+    template_name = 'recent_activity.html'
+    context_object_name = 'activities'
+    # Adjust ordering based on your model's timestamp field
+    ordering = ['-timestamp']
+
+
+
 

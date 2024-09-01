@@ -27,9 +27,9 @@
             <h3>{{ profile.job_title }}</h3>
             <div class="social-links mt-2">
               <a href="{{ profile.x_profile }}" class="twitter"><i class="bi bi-twitter"></i></a>
-              <a href="#" class="{{ profile.facebook_profile }}"><i class="bi bi-facebook"></i></a>
-              <a href="#" class="{{ profile.instagram_profile }}"><i class="bi bi-instagram"></i></a>
-              <a href="#" class="{{ profile.linkedin_profile }}"><i class="bi bi-linkedin"></i></a>
+              <a href="{{ profile.facebook_profile }}" class="facebook"><i class="bi bi-facebook"></i></a>
+              <a href="{{ profile.instagram_profile }}" class="instagram"><i class="bi bi-instagram"></i></a>
+              <a href="{{ profile.linkedin_profile }}" class="linkedin"><i class="bi bi-linkedin"></i></a>
             </div>
           </div>
         </div>
@@ -74,11 +74,6 @@
                   <div class="col-lg-9 col-md-8">{{ profile.job_title }}</div>
                 </div>
                 <div class="row">
-                  <div class="col-lg-3 col-md-4 label">Address</div>
-                  <div class="col-lg-9 col-md-8">{{ profile.address }}</div>
-                </div>
-
-                <div class="row">
                   <div class="col-lg-3 col-md-4 label">Phone</div>
                   <div class="col-lg-9 col-md-8">{{ profile.phone }}</div>
                 </div>
@@ -86,6 +81,10 @@
                 <div class="row">
                   <div class="col-lg-3 col-md-4 label">Email</div>
                   <div class="col-lg-9 col-md-8">{{ profile.email }}</div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 label">Date Joined</div>
+                  <div class="col-lg-9 col-md-8">{{ user.date_joined|date:"Y-m-d" }}</div>
                 </div>
 
               </div>
