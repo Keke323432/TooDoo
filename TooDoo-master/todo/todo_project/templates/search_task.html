@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}To Do App{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+    <section class="section">
+        <div class="row">
+        <div class="col-lg-8">  
+            <div class="card">
+                <div class="card-body">
+                <h5 class="card-title">Search tasks</h5>
+
+                <!-- List group With Checkboxes and radios -->
+                <ul class="list-group">
+                    {% if tasks %}
+                        {% for task in tasks %}
+                            {% if not task.completed %}
+                                <li class="list-group-item" id="task-{{ task.id }}">
+                                    <input type="checkbox" class="form-check-input me-1 task-checkbox" data-task-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
+                                    <a href="{% url 'update_task' task.pk %}" class="a-list">{{ task.title }} </a>
+                                    {% if task.due_date %} <span class="bi bi-calendar2-week-fill" ></span> <span class="due-date">{{     task.due_date|date:"d M, Y" }}</span>{% endif %}
+                                </li>
+                                {% if task.assigned_to.all %}
+                                <span class="assigned-user">Assigned to: 
+                                    {% for user in task.assigned_to.all %}
+                                        {{ user.username }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </span>
+                            {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p>No tasks found matching your query.</p>
+                    {% endif %}
+                </ul><!-- End List Checkboxes and radios -->
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+</main>
+<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}
+

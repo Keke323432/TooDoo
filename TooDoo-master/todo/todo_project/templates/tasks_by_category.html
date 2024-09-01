@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+    <section class="section">
+        <div class="row">
+        <div class="col-lg-8">  
+            <div class="card">
+                <div class="card-body">
+                <h5 class="card-title">{{ category.name }}</h5>
+
+                <!-- List group With Checkboxes and radios -->
+                <ul class="list-group">
+                    {% for task in cats %}
+                        {% if not task.completed %}
+                        <li class="list-group-item" id="task-{{ task.id }}">
+                            <input type="checkbox" class="form-check-input me-1 task-checkbox" data-task-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
+                            <a href="{% url 'update_task' task.pk %}" class="a-list">{{ task.title }}</a>
+                            {% if task.priority == 'urgent' %}
+                                <i class="fa-solid fa-circle fa-fade" style="color: #ff3d3d;"></i>
+                            {% elif task.priority == 'high' %}
+                                <i class="fa-solid fa-circle" style="color: #ff9b3d;"></i>
+                            {% elif task.priority == 'medium' %}
+                                <i class="fa-solid fa-circle" style="color: #FFD43B;"></i>
+                            {% elif task.priority == 'low' %}
+                                <i class="fa-solid fa-circle" style="color: #a2dbff;"></i>
+                            {% endif %}
+                            {% if task.due_date %} 
+                                <span class="bi bi-calendar2-week-fill"></span> 
+                                <span class="due-date">{{ task.due_date|date:"d M, Y" }}</span>
+                            {% endif %}
+                            {% if task.assigned_to.all %}
+                                <span class="assigned-user">Assigned to: 
+                                    {% for user in task.assigned_to.all %}
+                                        {{ user.username }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </span>
+                            {% endif %}
+                        </li>
+                        {% endif %}
+                        {% empty %}
+                        <li class="list-group-item">No tasks in this category.</li>
+                    {% endfor %}
+                </ul><!-- End List Checkboxes and radios -->
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+</main>
+<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}

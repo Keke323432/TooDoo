@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}To Do App{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+    <section class="section">
+        <div class="row">
+        <div class="col-lg-8">  
+            <div class="card">
+                <div class="card-body">
+                <h5 class="card-title">Scheduled tasks</h5>
+
+                <!-- Display Uncategorized Tasks -->
+                <h6 class="card-subtitle mb-2">Uncategorized</h6>
+                <ul class="list-group mb-4">
+                    {% for task in tasks %}
+                        {% if not task.category and not task.completed %}
+                            <li class="list-group-item" id="task-{{ task.id }}">
+                                <input type="checkbox" class="form-check-input me-1 task-checkbox" data-task-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
+                                <a href="{% url 'update_task' task.pk %}" class="a-list">{{ task.title }}</a>
+                                    {% if task.priority == 'urgent' %}
+                                        <i class="fa-solid fa-circle fa-fade" style="color: #ff3d3d;"></i>
+                                    {% elif task.priority == 'high' %}
+                                        <i class="fa-solid fa-circle" style="color: #ff9b3d;"></i>
+                                    {% elif task.priority == 'medium' %}
+                                        <i class="fa-solid fa-circle" style="color: #FFD43B;"></i>
+                                    {% elif task.priority == 'low' %}
+                                        <i class="fa-solid fa-circle" style="color: #a2dbff;"></i>
+                                    {% endif %}
+                                {% if task.due_date %} <span class="bi bi-calendar2-week-fill" ></span> <span class="due-date">{{ task.due_date|date:"d M, Y" }}</span>
+                                {% endif %}
+                                {% if task.assigned_to.all %}
+                                <span class="assigned-user">Assigned to: 
+                                    {% for user in task.assigned_to.all %}
+                                        {{ user.username }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </span>
+                            {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+
+                <!-- Display Tasks by Category -->
+                {% for category in categories %}
+                    <h6 class="card-subtitle mb-2">{{ category.name }}</h6>
+                    <ul class="list-group mb-4">
+                        {% for task in tasks %}
+                            {% if not task.completed and task.category == category %}
+                                <li class="list-group-item" id="task-{{ task.id }}">
+                                    <input type="checkbox" class="form-check-input me-1 task-checkbox" data-task-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
+                                    <a href="{% url 'update_task' task.pk %}" class="a-list">{{ task.title }}</a>
+                                        {% if task.priority == 'urgent' %}
+                                            <i class="fa-solid fa-circle fa-fade" style="color: #ff3d3d;"></i>
+                                        {% elif task.priority == 'high' %}
+                                            <i class="fa-solid fa-circle" style="color: #ff9b3d;"></i>
+                                        {% elif task.priority == 'medium' %}
+                                            <i class="fa-solid fa-circle" style="color: #FFD43B;"></i>
+                                        {% elif task.priority == 'low' %}
+                                        <i class="fa-solid fa-circle" style="color: #a2dbff;"></i>
+                                        {% endif %}
+                                    {% if task.due_date %} <span class="bi bi-calendar2-week-fill">     <span class="due-date">{{     task.due_date|date:"d M, Y" }}</span>
+                                    {% endif %}
+                                    {% if task.assigned_to.all %}
+                                    <span class="assigned-user">Assigned to: 
+                                        {% for user in task.assigned_to.all %}
+                                            {{ user.username }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                {% endif %}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+</main>
+<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}

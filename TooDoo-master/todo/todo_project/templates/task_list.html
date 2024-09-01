@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% block title %}To Do List{% endblock %}
+{% load time_filters %}
+{% block content %}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Dashboard</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Home</a></li>
+          <li class="breadcrumb-item active">Dashboard</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+
+        <!-- Left side columns -->
+        <div class="col-lg-8">
+          <div class="row">
+
+            <!-- All Takss Card -->
+            <div class="col-xxl-4 col-md-6">
+              <div class="card info-card sales-card">
+                <a href="{% url 'all_list' %}" class="stretched-link text-decoration-none">
+                <div class="card-body" a>
+                  <h5 class="card-title">All tasks </h5>
+
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="ri-todo-line"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6>{{ all_tasks_count }}</h6>
+                    </div>
+                  </div>
+                </a>  
+                </div>
+
+              </div>
+            </div><!-- End all tasks Card -->
+
+            <!-- Scheduled Card -->
+            <div class="col-xxl-4 col-md-6">
+              <div class="card info-card customers-card">
+                <a href="{% url 'scheduled_list' %}" class="stretched-link text-decoration-none">
+                <div class="card-body">
+                  <h5 class="card-title">Scheduled <span></h5>
+
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="ri-time-line"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6>{{ scheduled_tasks_count }}</h6>
+
+                    </div>
+                  </div>
+                </a>  
+                </div>
+
+              </div>
+            </div><!-- End Scheduled Card -->
+
+            <!-- Overdue Card -->
+            <div class="col-xxl-4 col-xl-12">
+
+              <div class="card info-card overdue-card">
+              <a href="{% url 'overdue_list' %}" class="stretched-link text-decoration-none">
+                <div class="card-body">
+                  <h5 class="card-title">Overdue</h5>
+
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="ri-timer-flash-line"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6>{{ overdue_tasks_count }}</h6>
+                      
+                    </div>
+                  </div>
+
+                </div>
+              </a> 
+              </div>
+
+            </div><!-- End Overdue Card -->
+
+            <!-- Recurring Card -->
+            <div class="col-xxl-4 col-xl-12">
+
+                <div class="card info-card recurring-card">
+                <a href="{% url 'completed_list' %}" class="stretched-link text-decoration-none">
+                  <div class="card-body">
+                    <h5 class="card-title">Recurring</h5>
+  
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="bi bi-arrow-repeat"></i>
+                      </div>
+                      <div class="ps-3">
+                        <h6>0</h6>
+                        
+                      </div>
+                    </div>
+  
+                  </div>
+                </a>
+                </div>
+  
+              </div><!-- End Recurring Card -->
+
+            <!-- Completed Card -->
+            <div class="col-xxl-4 col-xl-12">
+
+                <div class="card info-card revenue-card">
+                <a href="{% url 'completed_list' %}" class="stretched-link text-decoration-none">
+                  <div class="card-body">
+                    <h5 class="card-title">Completed</h5>
+  
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="ri-checkbox-circle-line"></i>
+                      </div>
+                      <div class="ps-3">
+                        <h6>{{ completed_tasks_count }}</h6>
+                        
+                      </div>
+                    </div>
+  
+                  </div>
+                </a>  
+                </div>
+  
+              </div><!-- End Completed Card -->
+            
+              
+
+
+          </div>
+        </div><!-- End Left side columns -->
+
+        <!-- Right side columns -->
+        <div class="col-lg-4">
+          <div class="card">
+            <div class="card-body pb-0">
+              <h5 class="card-title">Tasks Progression</h5>
+          
+              <div id="trafficChart" style="min-height: 400px;" class="echart"></div>
+          
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  echarts.init(document.querySelector("#trafficChart")).setOption({
+                    tooltip: {
+                      trigger: 'item'
+                    },
+                    legend: {
+                      top: '5%',
+                      left: 'center'
+                    },
+                    series: [{
+                      name: 'Access From',
+                      type: 'pie',
+                      radius: ['40%', '70%'],
+                      avoidLabelOverlap: false,
+                      label: {
+                        show: false,
+                        position: 'center'
+                      },
+                      emphasis: {
+                        label: {
+                          show: true,
+                          fontSize: '18',
+                          fontWeight: 'bold'
+                        }
+                      },
+                      labelLine: {
+                        show: false
+                      },
+                      data: [{
+                          value: {{ low_tasks_count }},
+                          name: 'Low Priority',
+                          itemStyle: {
+                            color: '#a2dbff' // Color for OnGoing
+                          }
+                        },
+                        {
+                          value: {{ medium_tasks_count }},
+                          name: 'Mid Priority',
+                          itemStyle: {
+                            color: '#FFD43B' // Color for Completed
+                          }
+                        },
+                        {
+                          value: {{ urgent_tasks_count }},
+                          name: 'Urgent Priority',
+                          itemStyle: {
+                            color: '#ff3d3d' // Color for Overdue
+                          }
+                        },
+                        {
+                          value: {{ high_tasks_count }},
+                          name: 'High Priority',
+                          itemStyle: {
+                            color: '#ff9b3d' // Color for Overdue
+                          }
+                        },
+                      ]
+                    }]
+                  });
+                });
+              </script>
+          
+            </div>
+          </div><!-- End Website Traffic -->
+
+          
+          <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Activity <span>| <a href="{% url 'recent_activity' %}">See All</a> </span></h5>
+                <div class="activity">
+                    {% for activity in recent_activities %}
+                    <div class="activity-item d-flex">
+                        <div class="activite-label">{{ activity.timestamp|short_timesince }}</div>
+                        <i class='bi bi-circle-fill activity-badge {% if activity.action == "task_add" %}text-info{% elif activity.action == "task_update" %}text-primary{% elif activity.action == "task_complete" %}text-success{% elif activity.action == "task_delete" %}text-danger{% else %}text-muted{% endif %} align-self-start'></i>
+                        <div class="activity-content">
+                            {{ activity.details }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+            </div> 
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+
+</main><!-- End #main -->
+
+{% endblock %}
+
+
