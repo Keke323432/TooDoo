@@ -65,12 +65,14 @@
         <li class="nav-item dropdown">
           <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
             <i class="bi bi-chat-left-text"></i>
+            {% if latest_conversations.count > 0 %}
             <span class="badge bg-success badge-number">{{ latest_conversations|length }}</span>
+        {% endif %}
           </a><!-- End Messages Icon -->
 
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
             <li class="dropdown-header">
-              Latest Conversations
+              Latest Messages                         
               <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2"></span></a>
             </li>
             <li>
@@ -132,74 +134,73 @@
         <li class="nav-item dropdown">
           <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
             <i class="bi bi-bell"></i>
-            <span class="badge bg-primary badge-number">4</span>
+            {% if notifications_unread.count > 0 %}
+            <span class="badge bg-primary badge-number">{{ notifications_unread.count }}</span>
+            {% endif %}
           </a><!-- End Notification Icon -->
-
+        
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
             <li class="dropdown-header">
-              You have 4 new notifications
-              <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
+              You have {{ notifications_unread.count }} new notifications
+              <a href="{% url 'mark_notifications_as_read' %}" class="badge rounded-pill bg-primary p-2 ms-2">Mark all read</a>
             </li>
             <li>
               <hr class="dropdown-divider">
             </li>
-
+        
+            <!-- Unread Notifications -->
+            {% for notification in notifications_unread %}
             <li class="notification-item">
               <i class="bi bi-exclamation-circle text-warning"></i>
               <div>
-                <h4>Lorem Ipsum</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>30 min. ago</p>
+                <p>{{ notification.message }}</p>
+                <p>{{ notification.timestamp|date:"d b" }}</p>
               </div>
             </li>
-
             <li>
               <hr class="dropdown-divider">
             </li>
-
-            <li class="notification-item">
-              <i class="bi bi-x-circle text-danger"></i>
-              <div>
-                <h4>Atque rerum nesciunt</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>1 hr. ago</p>
-              </div>
-            </li>
-
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li class="notification-item">
-              <i class="bi bi-check-circle text-success"></i>
-              <div>
-                <h4>Sit rerum fuga</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>2 hrs. ago</p>
-              </div>
-            </li>
-
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li class="notification-item">
-              <i class="bi bi-info-circle text-primary"></i>
-              <div>
-                <h4>Dicta reprehenderit</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>4 hrs. ago</p>
-              </div>
-            </li>
-
-            <li>
-              <hr class="dropdown-divider">
-            </li>
+            {% empty %}
             <li class="dropdown-footer">
-              <a href="#">Show all notifications</a>
+              <p href="{% url 'inbox' %}">No New Notifications</p>
             </li>
-          </ul><!-- End Notification Dropdown Items -->
-        </li><!-- End Notification Nav -->
+            <li></li>
+              <hr class="dropdown-divider">
+            </li>
+            {% endfor %}
+        
+            <!-- Read Notifications -->
+            {% if notifications_read %}
+            <li class="dropdown-header">
+              Previous Notifications
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            {% for notification in notifications_read %}
+            <li class="notification-item">
+              <i class="bi bi-info-circle text-secondary"></i>
+              <div>
+                <p>{{ notification.message }}</p>
+                <p>{{ notification.timestamp|date:"d b" }}</p>
+              </div>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            {% empty %}
+            <li class="notification-item">
+              <p>No read notifications.</p>
+            </li>
+            {% endfor %}
+            {% endif %}
+            
+            <li class="dropdown-footer">
+              <a href="{% url 'notifications' %}">Show all notifications</a>
+            </li>
+          </ul><!-- End Notifications Dropdown Items -->
+        </li><!-- End Notifications Nav -->
+        
 
         <li class="nav-item dropdown pe-3">
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
@@ -229,13 +230,6 @@
             </li>
             <li>
               <hr class="dropdown-divider">
-            </li>
-
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'edit_profile' %}">
-                <i class="bi bi-gear"></i>
-                <span>Account Settings</span>
-              </a>
             </li>
             <li>
               <hr class="dropdown-divider">

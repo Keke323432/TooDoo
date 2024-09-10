@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
+from django.urls import reverse
 
 
 class Category(models.Model):
@@ -115,3 +116,17 @@ class ActivityLog(models.Model):
 
     def __str__(self):
         return f"{self.user} {self.get_action_display()} at {self.timestamp}"
+    
+    
+    
+    
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # User receiving the notification
+    message = models.CharField(max_length=255)
+    is_read = models.BooleanField(default=False)  # To track if the notification is read
+    timestamp = models.DateTimeField(auto_now_add=True)
+    task = models.ForeignKey(Task, null=True, blank=True, on_delete=models.SET_NULL)  # Optional field for task
+
+    
+    def __str__(self):
+        return f"Notification for {self.user.username}: {self.message}"

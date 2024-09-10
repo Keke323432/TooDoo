@@ -58,6 +58,8 @@ TEMPLATES = [
                 'todo_project.context_processors.category_list',
                 'todo_project.context_processors.profile_context',
                 'todo_project.context_processors.latest_conversations',
+                'todo_project.context_processors.get_notifications',
+                
                 
                 
             ],

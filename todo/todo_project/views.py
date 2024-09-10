@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Conversation, ActivityLog
+from .models import Conversation, ActivityLog, Notification
 from .forms import MessageForm
 from django.db.models import Q
 from datetime import timedelta
@@ -451,3 +451,48 @@ class RecentActivityView(ListView):
 
 
 
+def notifications_view(request):
+    if request.user.is_authenticated:
+        notifications_unread = Notification.objects.filter(user=request.user, is_read=False)
+        notifications_read = Notification.objects.filter(user=request.user, is_read=True)
+        return render(request, 'notifications.html', {
+            'notifications_unread': notifications_unread,
+            'notifications_read': notifications_read,
+        })
+    return redirect('login')  # Adjust redirect if needed
+    
+
+
+def mark_notifications_as_read(request):
+    if request.user.is_authenticated:
+        Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    return redirect('task_list')  
+
+
+
+
+class NotificationsView(ListView):
+    model = Notification
+    template_name = 'notifications.html'
+    context_object_name = 'notifications'
+    
+    def get_queryset(self):
+        """
+        Return all notifications for the authenticated user.
+        """
+        if self.request.user.is_authenticated:
+            return Notification.objects.filter(user=self.request.user)
+        return Notification.objects.none()
+
+    def get_context_data(self, **kwargs):
+        """
+        Add additional context for unread and read notifications.
+        """
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['notificationss_unread'] = Notification.objects.filter(user=self.request.user, is_read=False).order_by('-timestamp')
+            context['notificationss_read'] = Notification.objects.filter(user=self.request.user, is_read=True).order_by('-timestamp')
+        else:
+            context['notificationss_unread'] = []
+            context['notificationss_read'] = []
+        return context

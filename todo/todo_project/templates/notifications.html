@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1>Notifications</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Home</a></li>
+        <li class="breadcrumb-item active">Notifications</li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+  
+  <section class="section">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Unread Notifications</h5>
+            <!-- List group for unread notifications -->
+            <ul class="list-group">
+              {% if notificationss_unread %}
+                {% for notification in notificationss_unread %}
+                <li class="notification-item list-group-item">
+                    <div>
+                        <p>{{ notification.message }}</p>
+                        <span>{{ notification.timestamp|timesince }} ago</span>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="notification-item list-group-item">
+                  <p>No unread notifications.</p>
+                </li>
+                {% endfor %}
+              {% else %}
+                <li class="notification-item list-group-item">
+                  <p>No unread notifications.</p>
+                </li>
+              {% endif %}
+            </ul><!-- End List With badges -->
+
+            <h5 class="card-title mt-4">Read Notifications</h5>
+            <!-- List group for read notifications -->
+            <ul class="list-group">
+              {% if notificationss_read %}
+                {% for notification in notificationss_read %}
+                <li class="notification-item list-group-item">
+                    <div>
+                        <p>{{ notification.message }}</p>
+                        <span>{{ notification.timestamp|timesince }} ago</span>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="notification-item list-group-item">
+                  <p>No read notifications.</p>
+                </li>
+                {% endfor %}
+              {% else %}
+                <li class="notification-item list-group-item">
+                  <p>No read notifications.</p>
+                </li>
+              {% endif %}
+            </ul><!-- End List With badges -->
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main><!-- End #main -->
+{% endblock %}
