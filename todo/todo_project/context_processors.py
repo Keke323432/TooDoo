@@ -34,11 +34,14 @@ def get_notifications(request):
     if request.user.is_authenticated:
         notifications_unread = Notification.objects.filter(user=request.user, is_read=False).order_by('-timestamp')[:5]
         notifications_read = Notification.objects.filter(user=request.user, is_read=True).order_by('-timestamp')[:5]
+        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
         return {
             'notifications_unread': notifications_unread,
             'notifications_read': notifications_read,
+            'unread_count': unread_count,
         }
     return {
         'notifications_unread': [],
         'notifications_read': [],
+        'unread_count': 0,
     }

@@ -135,13 +135,13 @@
           <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
             <i class="bi bi-bell"></i>
             {% if notifications_unread.count > 0 %}
-            <span class="badge bg-primary badge-number">{{ notifications_unread.count }}</span>
+            <span class="badge bg-primary badge-number">{{ unread_count }}</span>
             {% endif %}
           </a><!-- End Notification Icon -->
         
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
             <li class="dropdown-header">
-              You have {{ notifications_unread.count }} new notifications
+              You have {% if unread_count > 5 %}5+{% else %}{{ unread_count }}{% endif %} new notifications
               <a href="{% url 'mark_notifications_as_read' %}" class="badge rounded-pill bg-primary p-2 ms-2">Mark all read</a>
             </li>
             <li>
@@ -151,20 +151,18 @@
             <!-- Unread Notifications -->
             {% for notification in notifications_unread %}
             <li class="notification-item">
-              <i class="bi bi-exclamation-circle text-warning"></i>
+              <a href="{% if notification.task.pk %}{% url 'update_task' notification.task.pk %}{% else %}#{% endif %}" class="d-flex align-items-center text-decoration-none">
+                {% if notification.user.profile.profile_pic %}
+                <img src="{{ notification.user.profile.profile_pic.url }}" alt="{{ notification.user.username }}" class="profile-image">
+                {% else %}
+                <i class="bi bi-person-circle text-secondary"></i>  <!-- Fallback icon if no profile image -->
+                {% endif %}
               <div>
                 <p>{{ notification.message }}</p>
-                <p>{{ notification.timestamp|date:"d b" }}</p>
+                <p>{{ notification.timestamp|date:"d M H:i" }} by {{ notification.user.profile.username }}</p>
               </div>
             </li>
             <li>
-              <hr class="dropdown-divider">
-            </li>
-            {% empty %}
-            <li class="dropdown-footer">
-              <p href="{% url 'inbox' %}">No New Notifications</p>
-            </li>
-            <li></li>
               <hr class="dropdown-divider">
             </li>
             {% endfor %}
@@ -179,10 +177,15 @@
             </li>
             {% for notification in notifications_read %}
             <li class="notification-item">
-              <i class="bi bi-info-circle text-secondary"></i>
+              <a href="{% if notification.task.pk %}{% url 'update_task' notification.task.pk %}{% else %}#{% endif %}" class="d-flex align-items-center text-decoration-none">
+                {% if notification.user.profile.profile_pic %}
+                <img src="{{ notification.user.profile.profile_pic.url }}" alt="{{ notification.user.username }}" class="profile-image">
+                {% else %}
+                <i class="bi bi-person-circle text-secondary"></i>  <!-- Fallback icon if no profile image -->
+                {% endif %}
               <div>
                 <p>{{ notification.message }}</p>
-                <p>{{ notification.timestamp|date:"d b" }}</p>
+                <p>{{ notification.timestamp|date:"d M H:i" }} by {{ notification.user.profile.username }}</p>
               </div>
             </li>
             <li>

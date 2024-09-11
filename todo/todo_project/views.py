@@ -91,6 +91,8 @@ class TaskListView(LoginRequiredMixin, TaskCountsMixin, ListView):
         ).order_by('-timestamp')[:15]
 
         return context
+    
+    
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
@@ -205,9 +207,14 @@ class CompletedTaskListView(LoginRequiredMixin, ListView):
     template_name = 'completed_list.html'
     context_object_name = 'tasks'  # this can be used in the template to get the objects
 
+    def get_queryset(self):
+        # Filter tasks to only include completed ones
+        return Task.objects.filter(completed=True, user=self.request.user)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['task_count'] = self.get_queryset().count()
+        # Count only completed tasks
+        context['task_completed_count'] = self.get_queryset().count()
         return context
 
 

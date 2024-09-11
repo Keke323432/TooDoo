@@ -19,7 +19,7 @@
               {% for activity in activities %}
                 <li class="list-group-item">
                   <strong>{{ activity.timestamp|date:"d M Y H:i" }}</strong> - 
-                  {{ activity.user.username }} {{ activity.get_action_display }} - 
+                  {{ activity.user.username }} - 
                   {{ activity.details }}
                 </li>
               {% empty %}

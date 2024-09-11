@@ -519,7 +519,7 @@ h6 {
 .header-nav .notifications .notification-item p {
   font-size: 13px;
   margin-bottom: 3px;
-  color: #919191;
+  color: #5a5a5a;
 }
 
 .header-nav .notifications .notification-item:hover {
@@ -1278,5 +1278,16 @@ h6 {
   visibility: visible;
   opacity: 1;
 }
+
+
+
+.profile-image {
+  margin-right: 10px;
+  width: 40px;   /* Adjust size as needed */
+  height: 40px;  /* Adjust size as needed */
+  border-radius: 50%; /* Make it a circle */
+  object-fit: cover; /* Ensure image fits the container */
+}
+
 
 
