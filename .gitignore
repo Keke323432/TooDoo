@@ -1,2 +1,3 @@
 # Ignore the SQLite database file
 db.sqlite3
+settings.py
