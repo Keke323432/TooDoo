@@ -13,61 +13,79 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import Conversation, ActivityLog, Notification
 from .forms import MessageForm
-from django.db.models import Q
-from datetime import timedelta
+from django.db.models import Q, Count
+from datetime import timedelta, datetime
 
 
 class TaskCountsMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
+        today = timezone.now().date()
+        start_date = today - timedelta(days=7)
 
-        # Counts tasks where the user is either the creator or assigned to the task
+        # Current counts for pie chart
         context['all_tasks_count'] = Task.objects.filter(
             Q(user=user) | Q(assigned_to=user),
             completed=False
         ).count()
-
         context['scheduled_tasks_count'] = Task.objects.filter(
             Q(user=user) | Q(assigned_to=user),
             due_date__gte=timezone.now(),
             completed=False
         ).count()
-
         context['overdue_tasks_count'] = Task.objects.filter(
             Q(user=user) | Q(assigned_to=user),
             due_date__lt=timezone.now(),
             completed=False
         ).count()
-
         context['completed_tasks_count'] = Task.objects.filter(
             Q(user=user) | Q(assigned_to=user),
             completed=True
         ).count()
-
         context['low_tasks_count'] = Task.objects.filter(
             Q(user=user) | Q(assigned_to=user),
             priority='low',
             completed=False
         ).count()
-
         context['medium_tasks_count'] = Task.objects.filter(
             Q(user=user) | Q(assigned_to=user),
             priority='medium',
             completed=False
         ).count()
-
         context['high_tasks_count'] = Task.objects.filter(
             Q(user=user) | Q(assigned_to=user),
             priority='high',
             completed=False
         ).count()
-
         context['urgent_tasks_count'] = Task.objects.filter(
             Q(user=user) | Q(assigned_to=user),
             priority='urgent',
             completed=False
         ).count()
+
+        # Data for the line chart
+        dates = [start_date + timedelta(days=i) for i in range(8)]  # 8 to include end_date
+        priority_data = {priority: [0] * len(dates) for priority in ['low', 'medium', 'high', 'urgent']}
+
+        # Count tasks per day
+        for priority in priority_data.keys():
+            for i, date in enumerate(dates):
+                start_of_day = datetime.combine(date, datetime.min.time())
+                end_of_day = start_of_day + timedelta(days=1)  # End of the day is 24 hours from start_of_day
+                count = Task.objects.filter(
+                    Q(user=user) | Q(assigned_to=user),
+                    priority=priority,
+                    created_at__gte=start_of_day,
+                    created_at__lt=end_of_day  # Use < for exclusive end
+                ).count()
+                priority_data[priority][i] = count
+
+        context['low_priority'] = priority_data['low']
+        context['medium_priority'] = priority_data['medium']
+        context['high_priority'] = priority_data['high']
+        context['urgent_priority'] = priority_data['urgent']
+        context['dates'] = [date.strftime('%Y-%m-%dT%H:%M:%S.%fZ') for date in dates]  
 
         return context
 

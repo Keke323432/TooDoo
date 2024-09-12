@@ -208,16 +208,16 @@
         <li class="nav-item dropdown pe-3">
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
             <img src="{{ profile.profile_pic.url }}" alt="Profile" class="rounded-circle">
-            <span class="d-none d-md-block dropdown-toggle ps-2">{{ profile.username }}</span>
+            <span class="d-none d-md-block dropdown-toggle ps-2">{{ user.username }}</span>
           </a><!-- End Profile Image Icon -->
 
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
             <li class="dropdown-header">
-              <h6>{{ profile.username }}</h6>
+              <h6>{{ user.username }}</h6>
             </li>
             <li class="dropdown-header form-check form-switch">
               <label class="form-check-label" for="darkModeSwitch" id="theme-toggle">
-                Light Mode <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+                Dark Mode(Test) <input class="form-check-input" type="checkbox" id="darkModeSwitch">
               </label>
             </li>
 

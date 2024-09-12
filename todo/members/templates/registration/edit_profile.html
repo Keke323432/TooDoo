@@ -23,7 +23,7 @@
           <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
 
             <img src="{{ profile.profile_pic.url }}" alt="Profile" class="rounded-circle">
-            <h2>{{ profile.username }}</h2>
+            <h2>{{ user.username }}</h2> <!-- Show the username from the User model -->
             <h3>{{ profile.job_title }}</h3>
             <div class="social-links mt-2">
               <a href="{{ profile.x_profile }}" class="twitter"><i class="bi bi-twitter"></i></a>
@@ -60,8 +60,8 @@
                 <h5 class="card-title">Profile Details</h5>
 
                 <div class="row">
-                  <div class="col-lg-3 col-md-4 label ">Full Name</div>
-                  <div class="col-lg-9 col-md-8">{{ profile.username }}</div>
+                  <div class="col-lg-3 col-md-4 label">Full Name</div>
+                  <div class="col-lg-9 col-md-8">{{ user.username }}</div> <!-- Show username from User model -->
                 </div>
 
                 <div class="row">
@@ -105,20 +105,18 @@
                           <input type="file" name="profile_pic" accept="image/*" style="display:none;">
                         </label>
                         <label class="btn btn-danger btn-sm" title="Remove my profile image">
-                          <i class="bi bi-trash"></i></a>
-                          <input type="file" name="profile_pic" accept="image/*" style="display:none;">
-                        </label>
+                          <i class="bi bi-trash"></i>
+                          <a href="{% url 'delete_profile_pic' %}" class="text-white">remove</a>
+                        </label>                      
                       </div>
                     </div>
                   </div>
-
                   <div class="row mb-3">
-                    <label for="fullName" class="col-md-4 col-lg-3 col-form-label">{{ form.username.label }}</label>
+                    <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
                     <div class="col-md-8 col-lg-9">
-                      {{ form.username }}
+                        {{ form.username }}
                     </div>
-                  </div>
-
+                </div>
                   <div class="row mb-3">
                     <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
                     <div class="col-md-8 col-lg-9">
@@ -206,6 +204,3 @@
 
 </main><!-- End #main -->
 {% endblock %}
-
-
-

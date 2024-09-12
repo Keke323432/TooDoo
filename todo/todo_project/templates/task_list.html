@@ -140,8 +140,18 @@
             <!-- Reports -->
             <div class="col-12">
               <div class="card">
-
                 <div class="card-body">
+                  <div class="filter">
+                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                      <li class="dropdown-header text-start">
+                        <h6>Filter</h6>
+                      </li>
+                      <li><a class="dropdown-item" href="?filter=today">Today</a></li>
+                      <li><a class="dropdown-item" href="?filter=month">This Month</a></li>
+                      <li><a class="dropdown-item" href="?filter=year">This Year</a></li>
+                    </ul>
+                  </div>
                   <h5 class="card-title">Reports <span>/Last 7 Days</span></h5>
 
                   <!-- Line Chart -->
@@ -152,16 +162,16 @@
                       new ApexCharts(document.querySelector("#reportsChart"), {
                         series: [{
                           name: 'Low Priority',
-                          data: [31, 40, 28, 51, 42, 82, 56],
+                          data: {{ low_priority|safe }}
                         }, {
                           name: 'Mid Priority',
-                          data: [11, 32, 45, 32, 34, 52, 41]
-                        },{
+                          data: {{ medium_priority|safe }}
+                        }, {
                           name: 'High Priority',
-                          data: [11, 32, 45, 32, 34, 52, 41]
+                          data: {{ high_priority|safe }}
                         }, {
                           name: 'Urgent',
-                          data: [15, 11, 32, 18, 9, 24, 11]
+                          data: {{ urgent_priority|safe }}
                         }],
                         chart: {
                           height: 350,
@@ -173,7 +183,7 @@
                         markers: {
                           size: 4
                         },
-                        colors: ['#a2dbff', '#FFD43B', '#ff9b3d','#ff3d3d'],
+                        colors: ['#a2dbff', '#FFD43B', '#ff9b3d', '#ff3d3d'],
                         fill: {
                           type: "gradient",
                           gradient: {
@@ -192,11 +202,19 @@
                         },
                         xaxis: {
                           type: 'datetime',
-                          categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
+                          categories: {{ dates|safe }}
+                        },
+                        yaxis: {
+                          tickAmount: 5,  // Number of ticks on the y-axis
+                          labels: {
+                            formatter: function(value) {
+                              return Math.round(value);  // Round the values to the nearest integer
+                            }
+                          }
                         },
                         tooltip: {
                           x: {
-                            format: 'dd/MM/yy HH:mm'
+                            format: 'dd/MM/yy'
                           },
                         }
                       }).render();
@@ -205,9 +223,9 @@
                   <!-- End Line Chart -->
 
                 </div>
-
               </div>
             </div><!-- End Reports -->
+
 
 
           </div>

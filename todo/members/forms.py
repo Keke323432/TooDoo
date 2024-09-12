@@ -5,13 +5,15 @@ from todo_project.models import Profile
 
     
 class ProfilePageForm(forms.ModelForm):
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=True)
     class Meta:
         model = Profile
         fields = ('username','email','bio', 'profile_pic', 'job_title', 'phone', 'company', 'address',
                   'x_profile', 'instagram_profile', 'linkedin_profile', 'facebook_profile')
 
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.TextInput(attrs={'class': 'form-control'}),
             'bio': forms.Textarea(attrs={'class': 'form-control'}),
             'profile_pic': forms.ClearableFileInput(attrs={'class': 'form-control'}),
