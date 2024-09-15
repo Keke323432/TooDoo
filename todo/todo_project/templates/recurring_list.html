@@ -1,470 +1,82 @@
+{% extends 'base.html' %}
 {% load static %}
+{% block title %}To Do App{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block content %}
+<main id="main" class="main">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Reccuring Tasks</h5>
 
-<head>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Dashboard - NiceAdmin Bootstrap Template</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
+                        <!-- Display Uncategorized Tasks -->
+                        <h6 class="card-subtitle mb-2">Uncategorized</h6>
+                        <ul class="list-group mb-4">
+                            {% for task in tasks %}
+                                {% if not task.category and not task.completed%}
+                                    <li class="list-group-item" id="task-{{ task.id }}">
+                                        <input type="checkbox" class="form-check-input me-1 task-checkbox" data-task-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
+                                        <a href="{% url 'update_task' task.pk %}" class="a-list">{{ task.title }}</a>
+                                        {% if task.priority == 'urgent' %}
+                                            <i class="fa-solid fa-circle fa-fade" style="color: #ff3d3d;"></i>
+                                        {% elif task.priority == 'high' %}
+                                            <i class="fa-solid fa-circle" style="color: #ff9b3d;"></i>
+                                        {% elif task.priority == 'medium' %}
+                                            <i class="fa-solid fa-circle" style="color: #FFD43B;"></i>
+                                        {% elif task.priority == 'low' %}
+                                            <i class="fa-solid fa-circle" style="color: #a2dbff;"></i>
+                                        {% endif %}
+                                        {% if task.due_date %} 
+                                            <span class="bi bi-calendar2-week-fill"></span> 
+                                            <span class="due-date">{{ task.due_date|date:"d M, Y" }}</span>
+                                        {% endif %}
+                                        {% if task.assigned_to %}
+                                            Assigned to: 
+                                            {{ task.assigned_to.username }}
+                                        {% endif %}
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
 
-  <!-- Favicons -->
-  <link href="{% static 'img/favicon.png' %}" rel="icon">
-  <link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-
-  <!-- Vendor CSS Files -->
-  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
-  <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
-  <link href="{% static 'vendor/quill/quill.snow.css' %}" rel="stylesheet">
-  <link href="{% static 'vendor/quill/quill.bubble.css' %}" rel="stylesheet">
-  <link href="{% static 'vendor/remixicon/remixicon.css' %}" rel="stylesheet">
-  <link href="{% static 'vendor/simple-datatables/style.css' %}" rel="stylesheet">
-
-  <!-- Template Main CSS File -->
-  <link href="{% static 'css/style.css' %}" rel="stylesheet">
-</head>
-
-<body>
-
-  <!-- ======= Header ======= -->
-  <header id="header" class="header fixed-top d-flex align-items-center">
-
-    <div class="d-flex align-items-center justify-content-between">
-      <a href="{% url 'task_list' %}" class="logo d-flex align-items-center">
-        <img src="assets/img/logo.png" alt="">
-        <span class="d-none d-lg-block">TooDoo</span>
-      </a>
-      <i class="bi bi-list toggle-sidebar-btn"></i>
-    </div><!-- End Logo -->
-
-    <div class="search-bar">
-      <form class="search-form d-flex align-items-center" role="search" method="get" action="{% url 'search_task' %}">
-        <input  type="text" placeholder="Search To Do" aria-label="Search" name="q" value="{{ request.GET.q }}">
-        <button type="submit" title="Search"><i class="bi bi-search"></i></button>
-      </form>
-    </div><!-- End Search Bar -->
-
-    <nav class="header-nav ms-auto">
-      <ul class="d-flex align-items-center">
-
-        <li class="nav-item d-block d-lg-none">
-          <a class="nav-link nav-icon search-bar-toggle " href="#">
-            <i class="bi bi-search"></i>
-          </a>
-        </li><!-- End Search Icon-->
-
-        <li class="nav-item dropdown">
-
-          <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-            <i class="bi bi-bell"></i>
-            <span class="badge bg-primary badge-number">4</span>
-          </a><!-- End Notification Icon -->
-
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
-            <li class="dropdown-header">
-              You have 4 new notifications
-              <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li class="notification-item">
-              <i class="bi bi-exclamation-circle text-warning"></i>
-              <div>
-                <h4>Lorem Ipsum</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>30 min. ago</p>
-              </div>
-            </li>
-
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li class="notification-item">
-              <i class="bi bi-x-circle text-danger"></i>
-              <div>
-                <h4>Atque rerum nesciunt</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>1 hr. ago</p>
-              </div>
-            </li>
-
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li class="notification-item">
-              <i class="bi bi-check-circle text-success"></i>
-              <div>
-                <h4>Sit rerum fuga</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>2 hrs. ago</p>
-              </div>
-            </li>
-
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li class="notification-item">
-              <i class="bi bi-info-circle text-primary"></i>
-              <div>
-                <h4>Dicta reprehenderit</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>4 hrs. ago</p>
-              </div>
-            </li>
-
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            <li class="dropdown-footer">
-              <a href="#">Show all notifications</a>
-            </li>
-
-          </ul><!-- End Notification Dropdown Items -->
-
-        </li><!-- End Notification Nav -->
-
-
-        <li class="nav-item dropdown pe-3">
-
-          <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">
-            <span class="d-none d-md-block dropdown-toggle ps-2">K. Anderson</span>
-          </a><!-- End Profile Iamge Icon -->
-
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-            <li class="dropdown-header">
-              <h6>Kevin Anderson</h6>
-              <span>Web Designer</span>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'edit_profile' %}">
-                <i class="bi bi-person"></i>
-                <span>My Profile</span>
-              </a>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{% url 'edit_profile' %}">
-                <i class="bi bi-gear"></i>
-                <span>Account Settings</span>
-              </a>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li>
-                <a class="dropdown-item d-flex align-items-center" href="#" id="logout-link">
-                  <i class="bi bi-box-arrow-right"></i>
-                  <span>Sign Out</span>
-                </a>
-              </li>
-              <!-- Hidden form for logout -->
-              <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
-                {% csrf_token %}
-              </form>
-              
-            
-
-          </ul><!-- End Profile Dropdown Items -->
-        </li><!-- End Profile Nav -->
-
-      </ul>
-    </nav><!-- End Icons Navigation -->
-
-  </header><!-- End Header -->
-
-  <!-- ======= Sidebar ======= -->
-  <aside id="sidebar" class="sidebar">
-
-    <ul class="sidebar-nav" id="sidebar-nav">
-
-      <li class="nav-item">
-        <a class="nav-link " href="{% url 'task_list' %}">
-          <i class="bi bi-grid"></i>
-          <span>Dashboard</span>
-        </a>
-      </li><!-- End Dashboard Nav -->
-      <li class="nav-item">
-        <a class="nav-link collapsed " href="{% url 'create_task' %}">
-          <i class="bi bi-plus-circle"></i>
-          <span>Add Task</span>
-        </a>
-      </li><!-- End Dashboard Nav -->
-      <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-layout-text-window-reverse"></i><span>Categories</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="tables-nav" class="nav-content collapse show " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="{% url 'add_category' %}">
-              <i class="bi bi-circle"></i><span>View Categories</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'add_category' %}">
-              <i class="bi bi-circle"></i><span>Add Cateogory</span>
-            </a>
-          </li>
-        </ul>
-      </li><!-- End Tables Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'edit_profile' %}">
-          <i class="bi bi-person"></i>
-          <span>Profile</span>
-        </a>
-      </li><!-- End Profile Page Nav -->
-
-
-    </ul>
-
-  </aside><!-- End Sidebar-->
-
-  <main id="main" class="main">
-
-    <div class="pagetitle">
-      <h1>Dashboard</h1>
-      <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-          <li class="breadcrumb-item active">Dashboard</li>
-        </ol>
-      </nav>
-    </div><!-- End Page Title -->
-
-    <section class="section dashboard">
-      <div class="row">
-
-        <!-- Left side columns -->
-        <div class="col-lg-8">
-          <div class="row">
-
-            <!-- All Takss Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card sales-card">
-                <a href={% url 'all_list' %} class="stretched-link text-decoration-none">
-                <div class="card-body" a>
-                  <h5 class="card-title">All tasks </h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="ri-todo-line"></i>
+                        <!-- Display Tasks by Category -->
+                        {% for category in categories %}
+                            <h6 class="card-subtitle mb-2">{{ category.name }}</h6>
+                            <ul class="list-group mb-4">
+                                {% for task in tasks %}
+                                    {% if task.category == category and not task.completed %}
+                                        <li class="list-group-item" id="task-{{ task.id }}">
+                                            <input type="checkbox" class="form-check-input me-1 task-checkbox" data-task-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
+                                            <a href="{% url 'update_task' task.pk %}" class="a-list">{{ task.title }}</a>
+                                            {% if task.priority == 'urgent' %}
+                                                <i class="fa-solid fa-circle fa-fade" style="color: #ff3d3d;"></i>
+                                            {% elif task.priority == 'high' %}
+                                                <i class="fa-solid fa-circle" style="color: #ff9b3d;"></i>
+                                            {% elif task.priority == 'medium' %}
+                                                <i class="fa-solid fa-circle" style="color: #FFD43B;"></i>
+                                            {% elif task.priority == 'low' %}
+                                                <i class="fa-solid fa-circle" style="color: #a2dbff;"></i>
+                                            {% endif %}
+                                            {% if task.due_date %} 
+                                                <span class="bi bi-calendar2-week-fill"></span> 
+                                                <span class="due-date">{{ task.due_date|date:"d M, Y" }}</span>
+                                            {% endif %}
+                                            {% if task.assigned_to %}
+                                            Assigned to: 
+                                            {{ task.assigned_to.username }}
+                                            {% endif %}
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
                     </div>
-                    <div class="ps-3">
-                      <h6>145</h6>
-                    </div>
-                  </div>
-                </a>  
                 </div>
-
-              </div>
-            </div><!-- End all tasks Card -->
-
-            <!-- Scheduled Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card customers-card">
-                <a href={% url 'scheduled_list' %} class="stretched-link text-decoration-none">
-                <div class="card-body">
-                  <h5 class="card-title">Scheduled <span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="ri-time-line"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>$3,264</h6>
-
-                    </div>
-                  </div>
-                </a>  
-                </div>
-
-              </div>
-            </div><!-- End Scheduled Card -->
-
-            <!-- Overdue Card -->
-            <div class="col-xxl-4 col-xl-12">
-
-              <div class="card info-card overdue-card">
-              <a href={% url 'overdue_list' %} class="stretched-link text-decoration-none">
-                <div class="card-body">
-                  <h5 class="card-title">Overdue</h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="ri-timer-flash-line"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>1244</h6>
-                      
-                    </div>
-                  </div>
-
-                </div>
-              </a> 
-              </div>
-
-            </div><!-- End Overdue Card -->
-
-            <!-- Recurring Card -->
-            <div class="col-xxl-4 col-xl-12">
-
-                <div class="card info-card recurring-card">
-                <a href={% url 'completed_list' %} class="stretched-link text-decoration-none">
-                  <div class="card-body">
-                    <h5 class="card-title">Recurring</h5>
-  
-                    <div class="d-flex align-items-center">
-                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="bi bi-arrow-repeat"></i>
-                      </div>
-                      <div class="ps-3">
-                        <h6>1244</h6>
-                        
-                      </div>
-                    </div>
-  
-                  </div>
-                </a>
-                </div>
-  
-              </div><!-- End Recurring Card -->
-
-            <!-- Completed Card -->
-            <div class="col-xxl-4 col-xl-12">
-
-                <div class="card info-card revenue-card">
-                <a href={% url 'completed_list' %} class="stretched-link text-decoration-none">
-                  <div class="card-body">
-                    <h5 class="card-title">Completed</h5>
-  
-                    <div class="d-flex align-items-center">
-                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="ri-checkbox-circle-line"></i>
-                      </div>
-                      <div class="ps-3">
-                        <h6>1244</h6>
-                        
-                      </div>
-                    </div>
-  
-                  </div>
-                </a>  
-                </div>
-  
-              </div><!-- End Completed Card -->
-            
-              
-
-
-          </div>
-        </div><!-- End Left side columns -->
-
-        <!-- Right side columns -->
-        <div class="col-lg-4">
-          <!-- Website Traffic -->
-          <div class="card">
-
-            <div class="card-body pb-0">
-              <h5 class="card-title">Tasks Progression</h5>
-
-              <div id="trafficChart" style="min-height: 400px;" class="echart"></div>
-
-              <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                  echarts.init(document.querySelector("#trafficChart")).setOption({
-                    tooltip: {
-                      trigger: 'item'
-                    },
-                    legend: {
-                      top: '5%',
-                      left: 'center'
-                    },
-                    series: [{
-                      name: 'Access From',
-                      type: 'pie',
-                      radius: ['40%', '70%'],
-                      avoidLabelOverlap: false,
-                      label: {
-                        show: false,
-                        position: 'center'
-                      },
-                      emphasis: {
-                        label: {
-                          show: true,
-                          fontSize: '18',
-                          fontWeight: 'bold'
-                        }
-                      },
-                      labelLine: {
-                        show: false
-                      },
-                      data: [{
-                          value: 1048,
-                          name: 'All Tasks'
-                        },
-                        {
-                          value: 735,
-                          name: 'Completed'
-                        },
-                        {
-                          value: 580,
-                          name: 'Overdue'
-                        },
-                      ]
-                    }]
-                  });
-                });
-              </script>
-
             </div>
-          </div><!-- End Website Traffic -->
-        </div><!-- End Right side columns -->
-
-      </div>
+        </div>
     </section>
-
-  </main><!-- End #main -->
-
- 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-  <!-- Vendor JS Files -->
-  <script src="{% static 'vendor/apexcharts/apexcharts.min.js' %}"></script>
-  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-  <script src="{% static 'vendor/chart.js/chart.umd.js' %}"></script>
-  <script src="{% static 'vendor/echarts/echarts.min.js' %}"></script>
-  <script src="{% static 'vendor/quill/quill.js' %}"></script>
-  <script src="{% static 'vendor/simple-datatables/simple-datatables.js' %}"></script>
-  <script src="{% static 'vendor/tinymce/tinymce.min.js' %}"></script>
-  <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
-
-  <!-- Template Main JS File -->
-  <script src="{% static 'js/main.js' %}"></script>
-  <script src="{% static 'js/script.js' %}"></script>
-
-</body>
-
-</html>
+</main>
+<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}

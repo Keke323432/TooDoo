@@ -6,6 +6,11 @@ from todo_project.models import Profile
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.forms import AuthenticationForm
+from django.conf import settings
+from django.utils.timezone import timedelta
+from datetime import datetime
+
 
 
 
@@ -18,7 +23,23 @@ class RegisterView(CreateView):
     
     
 class CustomLoginView(LoginView):
+    form_class = AuthenticationForm
     template_name = 'registration/login.html'
+
+    def form_valid(self, form):
+        # Check if "Remember Me" is checked
+        remember_me = self.request.POST.get('remember', None)
+        
+        # If "Remember Me" is not checked, set session to expire when the browser closes
+        if remember_me:
+            # Set session expiry for a longer period (e.g., 30 days)
+            self.request.session.set_expiry(30 * 24 * 60 * 60)  # 30 days in seconds
+        else:
+            # Session expires when the browser closes
+            self.request.session.set_expiry(0)
+
+        return super().form_valid(form)
+    
     
     
 class CustomLogoutView(LogoutView):

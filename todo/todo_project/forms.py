@@ -6,7 +6,7 @@ class EditForm(forms.ModelForm):
     assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}))
     class Meta:
         model = Task
-        fields = ['title', 'due_date', 'category', 'description', 'completed','priority','bookmarked','assigned_to']
+        fields = ['title', 'due_date', 'category', 'description', 'completed','priority','bookmarked','assigned_to','recurring','recurring_interval', 'recurring_end_date','recurring_start_date']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', }),
             'description': forms.Textarea(attrs={'class': 'tinymce-editor'}),
@@ -15,7 +15,11 @@ class EditForm(forms.ModelForm):
             'due_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'priority': forms.Select(attrs={'class': 'form-control'}),
             'bookmarked': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'assigned_to':forms.Select(attrs={'class': 'form-control'})
+            'assigned_to':forms.Select(attrs={'class': 'form-control'}),
+            'recurring_start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'recurring_end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'recurring': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'recurring_interval': forms.Select(attrs={'class': 'form-control'}),
             
         }
 
@@ -29,13 +33,18 @@ class CreateForm(forms.ModelForm):
     
     class Meta:
         model = Task
-        fields = ['title', 'due_date', 'category', 'description', 'priority', 'assigned_to']
+        fields = ['title', 'due_date', 'category', 'description', 'priority', 'assigned_to','recurring','recurring_interval', 'recurring_end_date','recurring_start_date']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'tinymce-editor'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
             'due_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'priority': forms.Select(attrs={'class': 'form-control'}),
+            'recurring_start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'recurring_end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'recurring': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'recurring_interval': forms.Select(attrs={'class': 'form-control'}),
+            
         }
 
     def __init__(self, *args, **kwargs):
@@ -47,6 +56,8 @@ class CreateForm(forms.ModelForm):
             self.fields['category'].queryset = Category.objects.all()
         else:
             self.fields['category'].queryset = Category.objects.all()
+    
+    
 
 
 class TaskCompleteForm(forms.ModelForm):

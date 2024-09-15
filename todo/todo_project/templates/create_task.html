@@ -7,11 +7,12 @@
         <h1>Create Task</h1>
         <nav>
             <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Home</a></li>
-              <li class="breadcrumb-item active">Create Task</li>
+                <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Home</a></li>
+                <li class="breadcrumb-item active">Create Task</li>
             </ol>
-          </nav>
-      </div><!-- End Page Title -->
+        </nav>
+    </div><!-- End Page Title -->
+
     <section class="section">
         <div class="row">
             <div class="col-lg-8">
@@ -35,7 +36,7 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="id_due_date" class="col-sm-2 col-form-label">{{ form.assigned_to.label }}</label>
+                                <label for="id_assigned_to" class="col-sm-2 col-form-label">{{ form.assigned_to.label }}</label>
                                 <div class="col-sm-10">
                                     {{ form.assigned_to }}
                                 </div>
@@ -47,7 +48,7 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="id_category" class="col-sm-2 col-form-label">{{ form.priority.label }}</label>
+                                <label for="id_priority" class="col-sm-2 col-form-label">{{ form.priority.label }}</label>
                                 <div class="col-sm-10">
                                     {{ form.priority }}
                                 </div>
@@ -58,21 +59,48 @@
                                     {{ form.category }}
                                 </div>
                             </div>
+                            
+                            <!-- Recurring Task Fields -->
+                            <div class="row mb-3">
+                                <label for="id_recurring" class="col-sm-2 col-form-label">{{ form.recurring.label }}</label>
+                                <div class="col-sm-10">
+                                    {{ form.recurring }}
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="id_recurring_interval" class="col-sm-2 col-form-label">{{ form.recurring_interval.label }}</label>
+                                <div class="col-sm-10">
+                                    {{ form.recurring_interval }}
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="id_recurring_start_date" class="col-sm-2 col-form-label">{{ form.recurring_start_date.label }}</label>
+                                <div class="col-sm-10">
+                                    {{ form.recurring_start_date }}
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="id_recurring_end_date" class="col-sm-2 col-form-label">{{ form.recurring_end_date.label }}</label>
+                                <div class="col-sm-10">
+                                    {{ form.recurring_end_date }}
+                                </div>
+                            </div>
+                            <!-- End Recurring Task Fields -->
+
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label"></label>
                                 <div class="col-sm-10">
                                     <button type="submit" class="btn btn-primary">Submit</button>
                                 </div>
                             </div>
+
                         </form><!-- End General Form Elements -->
-                        
+
                     </div>
                 </div>
             </div>
         </div>
     </section>
 </main>
-
-
 
 {% endblock %}

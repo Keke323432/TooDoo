@@ -93,7 +93,7 @@
             <div class="col-xxl-4 col-xl-12">
 
                 <div class="card info-card recurring-card">
-                <a href="{% url 'completed_list' %}" class="stretched-link text-decoration-none">
+                <a href="{% url 'recurring_list' %}" class="stretched-link text-decoration-none">
                   <div class="card-body">
                     <h5 class="card-title">Recurring</h5>
   
@@ -102,7 +102,7 @@
                         <i class="bi bi-arrow-repeat"></i>
                       </div>
                       <div class="ps-3">
-                        <h6>0</h6>
+                        <h6>{{ recurring_tasks_count }}</h6>
                         
                       </div>
                     </div>

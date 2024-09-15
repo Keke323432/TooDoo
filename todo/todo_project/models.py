@@ -27,9 +27,11 @@ class Task(models.Model):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     due_date = models.DateField(blank=True, null=True)
     recurring = models.BooleanField(default=False)
+    recurring_start_date = models.DateField(blank=True, null=True)  # New field
     recurring_end_date = models.DateField(blank=True, null=True)
     file = models.FileField(upload_to='static/img/', blank=True, null=True)
     bookmarked = models.BooleanField(default=False)
+    parent_task = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='clones')
     PRIORITY_CHOICES = [
         ('low', 'Low'),
         ('medium', 'Medium'),
@@ -39,6 +41,7 @@ class Task(models.Model):
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, blank=True, null=True)
     
     RECURRING_CHOICES = [
+        ('minute', 'Every Minute'),
         ('daily', 'Daily'),
         ('weekly', 'Weekly'),
         ('monthly', 'Monthly'),

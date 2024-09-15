@@ -68,35 +68,61 @@
                   <form method="post" action="{% url 'login' %}" class="row g-3 needs-validation" novalidate>
                     {% csrf_token %}
                     
+                    <!-- Username field -->
                     <div class="col-12">
                       <label for="username" class="form-label">Username</label>
                       <div class="input-group has-validation">
                         <span class="input-group-text" id="inputGroupPrepend">@</span>
                         <input type="text" name="username" class="form-control" id="username" required>
-                        <div class="invalid-feedback">Please enter your username.</div>
                       </div>
+                      <!-- Display form errors for username -->
+                      {% if form.username.errors %}
+                        <div class="text-danger">
+                          {{ form.username.errors.as_text }}
+                        </div>
+                      {% endif %}
                     </div>
-
+                  
+                    <!-- Password field -->
                     <div class="col-12">
                       <label for="password" class="form-label">Password</label>
                       <input type="password" name="password" class="form-control" id="password" required>
-                      <div class="invalid-feedback">Please enter your password!</div>
+                      <!-- Display form errors for password -->
+                      {% if form.password.errors %}
+                        <div class="text-danger">
+                          {{ form.password.errors.as_text }}
+                        </div>
+                      {% endif %}
                     </div>
-
+                  
+                    <!-- General non-field errors (e.g., wrong username/password) -->
+                    {% if form.non_field_errors %}
+                      <div class="col-12 text-danger">
+                        {% for error in form.non_field_errors %}
+                          <p>{{ error }}</p>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  
+                    <!-- Remember me checkbox -->
                     <div class="col-12">
                       <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe">
                         <label class="form-check-label" for="rememberMe">Remember me</label>
                       </div>
                     </div>
+                  
+                    <!-- Submit button -->
                     <div class="col-12">
                       <button class="btn btn-primary w-100" type="submit">Login</button>
                     </div>
+                  
+                    <!-- Link to register -->
                     <div class="col-12">
-                      <p class="small mb-0">Don't have account? <a href="{% url 'register' %}">Create an account</a></p>
+                      <p class="small mb-0">Don't have an account? <a href="{% url 'register' %}">Create an account</a></p>
                     </div>
                   </form>
-
+                  
                 </div>
               </div>
 

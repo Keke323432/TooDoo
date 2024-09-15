@@ -61,24 +61,43 @@
                       <span class="input-group-text" id="inputGroupPrepend">@</span>
                       {{ form.username }}
                     </div>
+                    <!-- Display form errors for username -->
+                    {% if form.username.errors %}
+                      <div class="text-danger">
+                        {{ form.username.errors.as_text }}
+                      </div>
+                    {% endif %}
                   </div>
+                  
                   <div class="col-12">
                     <label for="id_password1" class="form-label">Password</label>
                     {{ form.password1 }}
+                    <!-- Display form errors for password1 -->
+                    {% if form.password1.errors %}
+                      <div class="text-danger">
+                        {{ form.password1.errors.as_text }}
+                      </div>
+                    {% endif %}
                   </div>
-
+                
                   <div class="col-12">
                     <label for="id_password2" class="form-label">Password Confirmation</label>
                     {{ form.password2 }}
+                    <!-- Display form errors for password2 -->
+                    {% if form.password2.errors %}
+                      <div class="text-danger">
+                        {{ form.password2.errors.as_text }}
+                      </div>
+                    {% endif %}
                   </div>
-
+                
                   <div class="col-12">
                     <button class="btn btn-primary w-100" type="submit">Create Account</button>
                   </div>
                   <div class="col-12">
                     <p class="small mb-0">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
                   </div>
-                </form>
+                </form>                
 
               </div>
             </div>

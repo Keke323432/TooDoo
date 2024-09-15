@@ -29,6 +29,11 @@ class TaskCountsMixin(ContextMixin):
             Q(user=user) | Q(assigned_to=user),
             completed=False
         ).count()
+        context['recurring_tasks_count'] = Task.objects.filter(
+            Q(user=user) | Q(assigned_to=user),
+            recurring=True,
+            completed=False
+        ).count()
         context['scheduled_tasks_count'] = Task.objects.filter(
             Q(user=user) | Q(assigned_to=user),
             due_date__gte=timezone.now(),
@@ -151,6 +156,19 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
         ).distinct()
         return form
 
+    def form_valid(self, form):
+        task = form.instance
+        
+        # If the task is a clone (i.e., it has an parent task)
+        if task.parent_task:
+            # If "recurring" is unchecked on the clone
+            if not form.cleaned_data['recurring']:
+                # Find the parent task and set its "recurring" field to False
+                parent_task = task.parent_task
+                parent_task.recurring = False
+                parent_task.save()
+
+        return super().form_valid(form)
 
 class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
@@ -360,7 +378,12 @@ class RecurringListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Task.objects.filter(user=user)
+        today = timezone.now().date()  # Get today's date
+        queryset = Task.objects.filter(
+            user=user,
+            recurring=True,  # Only include tasks marked as recurring
+            completed=False,
+        )
         return queryset
 
 
