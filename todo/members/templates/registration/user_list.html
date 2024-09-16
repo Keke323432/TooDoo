@@ -24,7 +24,7 @@
               <thead>
                 <tr>
                   <th scope="col">Name</th>
-                  <th scope="col">Position</th>
+                  <th scope="col">Job Title</th>
                   <th scope="col">Date Joined</th>
                   <th scope="col"></th>
                 </tr>
@@ -32,11 +32,16 @@
               <tbody>
                   {% for user in users %}
                 <tr>
-                  <td><a href="{% url 'user_profile' user.username %}">{{ user.username }}</a></td>
+                  <td>
+                    <a href="{% url 'user_profile' user.username %}">
+                        <img src="{{ user.profile.profile_pic.url }}" alt="{{ user.username }}" class="profile-image">
+                    </a>
+                    <a href="{% url 'user_profile' user.username %}" class="a-list">{{ user.username }}</a>
+                </td>
                   <td>{{ user.profile.job_title }}</td>  <!-- Access job title from profile -->
                   <td>{{ user.date_joined|date:"Y-m-d" }}</td>  <!-- Format date joined -->
                   <td>
-                    <a href="{% url 'send_message' user.username %}">Send Message</a>
+                    <a href="{% url 'send_message' user.username %}" class="a-list">Send Message</a>
                 </td>
                 </tr>
                 {% endfor %}

@@ -74,6 +74,7 @@ class Profile(models.Model):
         return f"{self.user.username}'s Profile" if self.user else 'Profile without user'
 
 class Comment(models.Model):
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)  # Changed to ForeignKey
     post = models.ForeignKey(Task, related_name='comments', on_delete=models.CASCADE) # on_delete=models.Cascade - When delete the post delete all the comments too
     name = models.CharField(max_length=255)
     body = models.TextField(blank=True)

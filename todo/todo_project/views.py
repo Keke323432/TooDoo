@@ -333,6 +333,7 @@ class AddCommentView(LoginRequiredMixin, CreateView):
             task = get_object_or_404(Task, id=self.kwargs['task_id'])
             # Use 'post' to match the model. Retrieve the related comment from the task
             comment.post = task
+            comment.user = request.user  # Set the current user
             comment.save()
             # redirects to the same task by taking the id kwargs and shit
             return redirect(reverse_lazy('update_task', kwargs={'pk': task.id}))

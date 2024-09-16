@@ -18,8 +18,7 @@
             <ul class="list-group">
               {% for activity in activities %}
                 <li class="list-group-item">
-                  <strong>{{ activity.timestamp|date:"d M Y H:i" }}</strong> - 
-                  {{ activity.user.username }} - 
+                  <strong>{{ activity.timestamp|date:"d M Y H:i" }}</strong> -  
                   {{ activity.details }}
                 </li>
               {% empty %}

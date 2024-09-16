@@ -25,7 +25,7 @@
                 {% for notification in notificationss_unread %}
                 <li class="notification-item list-group-item">
                     <div>
-                      <a href="{% url 'update_task' notification.task.pk %}"><p>{{ notification.message }}</p></a>
+                      <a href="{% if notification.task.pk %}{% url 'update_task' notification.task.pk %}{% else %}#{% endif %}" class="d-flex align-items-center text-decoration-none">
                         <span>{{ notification.timestamp|timesince }} ago</span>
                     </div>
                 </li>
@@ -48,7 +48,7 @@
                 {% for notification in notificationss_read %}
                 <li class="notification-item list-group-item">
                     <div>
-                      <a href="{% url 'update_task' notification.task.pk %}"><p>{{ notification.message }}</p></a>
+                      <a href="{% if notification.task.pk %}{% url 'update_task' notification.task.pk %}{% else %}#{% endif %}" class="d-flex align-items-center text-decoration-none">
                         <span>{{ notification.timestamp|timesince }} ago</span>
                     </div>
                 </li>

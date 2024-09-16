@@ -1249,6 +1249,11 @@ h6 {
 
 }
 
+.b-list{
+  color: #212529BF;
+
+}
+
 .card-subtitle{
   color: #212529BF;
 }
@@ -1288,6 +1293,7 @@ h6 {
   border-radius: 50%; /* Make it a circle */
   object-fit: cover; /* Ensure image fits the container */
 }
+
 
 
 

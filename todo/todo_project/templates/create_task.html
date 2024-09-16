@@ -62,24 +62,27 @@
                             
                             <!-- Recurring Task Fields -->
                             <div class="row mb-3">
-                                <label for="id_recurring" class="col-sm-2 col-form-label">{{ form.recurring.label }}</label>
+                                <label for="id_recurring" class="col-sm-2 col-form-label">{{ form.recurring.label }} <small class="message-time">
+                                    <span class="ri-information-line">{{ message.created_at | date:"H:i" }}</span>
+                                    <span class="message-date"> Due date is required for recurring tasks</span>
+                                </small></label>
                                 <div class="col-sm-10">
                                     {{ form.recurring }}
                                 </div>
                             </div>
-                            <div class="row mb-3">
+                            <div class="row mb-3 recurring-fields" hidden>
                                 <label for="id_recurring_interval" class="col-sm-2 col-form-label">{{ form.recurring_interval.label }}</label>
                                 <div class="col-sm-10">
                                     {{ form.recurring_interval }}
                                 </div>
                             </div>
-                            <div class="row mb-3">
+                            <div class="row mb-3 recurring-fields" hidden>
                                 <label for="id_recurring_start_date" class="col-sm-2 col-form-label">{{ form.recurring_start_date.label }}</label>
                                 <div class="col-sm-10">
                                     {{ form.recurring_start_date }}
                                 </div>
                             </div>
-                            <div class="row mb-3">
+                            <div class="row mb-3 recurring-fields" hidden>
                                 <label for="id_recurring_end_date" class="col-sm-2 col-form-label">{{ form.recurring_end_date.label }}</label>
                                 <div class="col-sm-10">
                                     {{ form.recurring_end_date }}
@@ -101,6 +104,22 @@
             </div>
         </div>
     </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const recurringCheckbox = document.getElementById('id_recurring');
+            const recurringFields = document.querySelectorAll('.recurring-fields');
+        
+            function toggleRecurringFields() {
+                recurringFields.forEach(field => {
+                    field.hidden = !recurringCheckbox.checked;
+                });
+            }
+        
+            toggleRecurringFields();
+            recurringCheckbox.addEventListener('change', toggleRecurringFields);
+        });
+        </script>
+        
 </main>
 
 {% endblock %}

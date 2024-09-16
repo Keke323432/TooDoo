@@ -9,17 +9,17 @@ from django.urls import reverse
 def log_task_activity(sender, instance, created, **kwargs):
     if created:
         action = 'task_add'
-        details = f"Task '{instance.title}' added."
+        details = f"Task '{instance.title}' was added by {instance.user.username}."
     else:
         if instance.completed:
             action = 'task_complete'
-            details = f"Task '{instance.title}' completed."
+            details = f"Task '{instance.title}' was completed by {instance.assigned_to.username if instance.assigned_to else instance.user.username}."
         else:
             action = 'task_update'
-            details = f"Task '{instance.title}' updated."
+            details = f"Task '{instance.title}' was updated by {instance.assigned_to.username if instance.assigned_to else instance.user.username}."
 
     ActivityLog.objects.create(
-        user=instance.user,
+        user=instance.assigned_to if instance.assigned_to else instance.user,  # Who did the action
         action=action,
         object_id=instance.id,
         details=details
@@ -31,7 +31,7 @@ def log_task_delete(sender, instance, **kwargs):
         user=instance.user,
         action='task_delete',
         object_id=instance.id,
-        details=f"Task '{instance.title}' deleted."
+        details=f"Task '{instance.title}' was deleted by {instance.assigned_to.username if instance.assigned_to else instance.user.username}."
     )
 
 @receiver(post_save, sender=Category)

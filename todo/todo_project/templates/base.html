@@ -178,11 +178,7 @@
             {% for notification in notifications_read %}
             <li class="notification-item">
               <a href="{% if notification.task.pk %}{% url 'update_task' notification.task.pk %}{% else %}#{% endif %}" class="d-flex align-items-center text-decoration-none">
-                {% if notification.user.profile.profile_pic %}
                 <img src="{{ notification.user.profile.profile_pic.url }}" alt="{{ notification.user.username }}" class="profile-image">
-                {% else %}
-                <i class="bi bi-person-circle text-secondary"></i>  <!-- Fallback icon if no profile image -->
-                {% endif %}
               <div>
                 <p>{{ notification.message }}</p>
                 <p>{{ notification.timestamp|date:"d M H:i" }} by {{ notification.user.profile.username }}</p>
@@ -292,14 +288,6 @@
         </li>
         <!-- Other menu items -->
       </li>
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'bookmark_list' %}">
-          <i class="bi bi-bookmarks"></i>
-          <span>Bookmarks</span>
-        </a>
-      </li>
-
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'user_list' %}">
           <i class="bi bi-people"></i>
