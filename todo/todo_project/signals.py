@@ -41,7 +41,7 @@ def log_category_activity(sender, instance, created, **kwargs):
         user=instance.user,
         action=action,
         object_id=instance.id,
-        details=f"Category '{instance.name}' {'created' if created else 'updated'}."
+        details=f"Category '{instance.name}' was {'created' if created else 'updated'} by {instance.user.username}."
     )
 
 @receiver(post_delete, sender=Category)
@@ -50,7 +50,7 @@ def log_category_delete(sender, instance, **kwargs):
         user=instance.user,
         action='category_delete',
         object_id=instance.id,
-        details=f"Category '{instance.name}' deleted."
+        details=f"Category '{instance.name}' deleted by {instance.user.username}."
     )
 
 

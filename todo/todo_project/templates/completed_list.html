@@ -3,12 +3,21 @@
 
 {% block content %}
 <main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Completed Tasks</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Home</a></li>
+            <li class="breadcrumb-item active">Completed Tasks</li>
+          </ol>
+        </nav>
+      </div><!-- End Page Title -->
     <section class="section">
         <div class="row">
             <div class="col-lg-8">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Completed</h5>
+                        <h5 class="card-title"></h5>
                         <div>{{ task_completed_count }} Completed • 
                             <form id="clear-completed-form" action="{% url 'clear_completed' %}" method="post" style="display:inline;">
                                 {% csrf_token %}

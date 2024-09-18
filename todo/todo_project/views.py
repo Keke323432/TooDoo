@@ -545,3 +545,18 @@ class NotificationsView(ListView):
             context['notificationss_unread'] = []
             context['notificationss_read'] = []
         return context
+    
+    
+@login_required
+def mark_category_global(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    category.is_global = True
+    category.save()
+    return redirect('category_list')
+
+@login_required
+def unmark_category_global(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    category.is_global = False
+    category.save()
+    return redirect('category_list')

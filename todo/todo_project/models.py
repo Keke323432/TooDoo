@@ -8,6 +8,7 @@ class Category(models.Model):
     name = models.CharField(max_length=50)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     color = models.CharField(max_length=7, blank=True, default='#FFFFFF')  
+    is_global = models.BooleanField(default=False)
     def __str__(self):
         return self.name + ''
 

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TaskCreateView, TaskUpdateView, TaskDeleteView,TaskListView,CategoryListView,AddCategoryView,TaskByCategoryView,CategoryDeleteView,AllTaskListView, CompletedTaskListView,ScheduledTaskListView, OverdueTaskListView,SearchTaskView,mark_completed,ClearCompletedTasksView,AddCommentView,EditCommentView,DeleteCommentView,RecurringListView,BookmarkView,DeleteMessageView,RecentActivityView,mark_notifications_as_read,NotificationsView
+from .views import TaskCreateView, TaskUpdateView, TaskDeleteView,TaskListView,CategoryListView,AddCategoryView,TaskByCategoryView,CategoryDeleteView,AllTaskListView, CompletedTaskListView,ScheduledTaskListView, OverdueTaskListView,SearchTaskView,mark_completed,ClearCompletedTasksView,AddCommentView,EditCommentView,DeleteCommentView,RecurringListView,BookmarkView,DeleteMessageView,RecentActivityView,mark_notifications_as_read,NotificationsView,mark_category_global,unmark_category_global
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views
@@ -33,7 +33,8 @@ urlpatterns = [
     path('recent_activity/', RecentActivityView.as_view(), name='recent_activity'),
     path('mark-as-read/', mark_notifications_as_read, name='mark_notifications_as_read'),
     path('notifications/', NotificationsView.as_view(), name='notifications'),
-    
+    path('categories/mark_global/<int:category_id>/', mark_category_global, name='mark_global'),
+    path('categories/unmark_global/<int:category_id>/', unmark_category_global, name='unmark_global'),
     
 
     

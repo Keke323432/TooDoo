@@ -15,7 +15,7 @@
   
   <section class="section">
     <div class="row">
-      <div class="col-lg-12">
+      <div class="col-lg-8">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Unread Notifications</h5>
@@ -26,7 +26,14 @@
                 <li class="notification-item list-group-item">
                     <div>
                       <a href="{% if notification.task.pk %}{% url 'update_task' notification.task.pk %}{% else %}#{% endif %}" class="d-flex align-items-center text-decoration-none">
-                        <span>{{ notification.timestamp|timesince }} ago</span>
+                        {% if notification.user.profile.profile_pic %}
+                        <img src="{{ notification.user.profile.profile_pic.url }}" alt="{{ notification.user.username }}" class="profile-image">
+                        {% else %}
+                        <i class="bi bi-person-circle text-secondary"></i>  <!-- Fallback icon if no profile image -->
+                        {% endif %}
+                      <div>
+                        <p>{{ notification.message }}</p>
+                        <small>{{ notification.timestamp|date:"d M H:i" }} by {{ notification.user.profile.username }}</small>
                     </div>
                 </li>
                 {% empty %}
@@ -47,11 +54,18 @@
               {% if notificationss_read %}
                 {% for notification in notificationss_read %}
                 <li class="notification-item list-group-item">
+                  <div>
+                    <a href="{% if notification.task.pk %}{% url 'update_task' notification.task.pk %}{% else %}#{% endif %}" class="a-list d-flex align-items-center text-decoration-none">
+                      {% if notification.user.profile.profile_pic %}
+                      <img src="{{ notification.user.profile.profile_pic.url }}" alt="{{ notification.user.username }}" class="profile-image">
+                      {% else %}
+                      <i class="bi bi-person-circle text-secondary"></i>  <!-- Fallback icon if no profile image -->
+                      {% endif %}
                     <div>
-                      <a href="{% if notification.task.pk %}{% url 'update_task' notification.task.pk %}{% else %}#{% endif %}" class="d-flex align-items-center text-decoration-none">
-                        <span>{{ notification.timestamp|timesince }} ago</span>
-                    </div>
-                </li>
+                      <p>{{ notification.message }}</p>
+                      <small>{{ notification.timestamp|date:"d M H:i" }} by {{ notification.user.profile.username }}</small>
+                  </div>
+              </li>
                 {% empty %}
                 <li class="notification-item list-group-item">
                   <p>No read notifications.</p>

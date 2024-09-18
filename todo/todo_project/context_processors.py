@@ -12,12 +12,13 @@ def profile_context(request):              # this pulls the template globally. C
 
 
 
-def category_list(request):
+def sidebar_categories(request):
     if request.user.is_authenticated:
-        categories = Category.objects.all()
+        # Fetch only global categories
+        categories = Category.objects.filter(is_global=True)
     else:
         categories = Category.objects.none()  # No categories for unauthenticated users
-    return {'categories': categories}
+    return {'categoriess': categories}
 
 
 def latest_conversations(request):

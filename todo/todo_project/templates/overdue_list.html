@@ -4,12 +4,21 @@
 
 {% block content %}
 <main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Overdue Tasks</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Home</a></li>
+            <li class="breadcrumb-item active">Overdue Tasks</li>
+          </ol>
+        </nav>
+      </div><!-- End Page Title -->
     <section class="section">
         <div class="row">
         <div class="col-lg-8">  
             <div class="card">
                 <div class="card-body">
-                <h5 class="card-title">Overdue tasks</h5>
+                <h5 class="card-title"></h5>
 
                 <!-- Display Uncategorized Tasks -->
                 <h6 class="card-subtitle mb-2">Uncategorized</h6>

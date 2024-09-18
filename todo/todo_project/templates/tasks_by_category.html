@@ -4,6 +4,17 @@
 
 {% block content %}
 <main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Category List</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'task_list' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'category_list' %}">Category List</a></li>
+            <li class="breadcrumb-item active">{{ category.name }}</li> 
+          </ol>
+        </nav>
+      </div><!-- End Page Title -->
+
     <section class="section">
         <div class="row">
         <div class="col-lg-8">  

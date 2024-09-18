@@ -277,7 +277,7 @@
             <i class="bi bi-layout-text-window-reverse"></i><span>Categories</span>
           </a>
           <ul class="nav-content">
-            {% for category in categories %}
+            {% for category in categoriess %}
               <li>
                 <a href="{% url 'tasks_by_category' category.id %}">
                   <i class="bi bi-circle"></i><span>{{ category.name }}</span>
@@ -308,7 +308,12 @@
           <span>Inbox</span>
         </a>
       </li>
-
+      <li class="nav-item"></li>
+        <a class="nav-link collapsed" href="{% url 'notifications' %}">
+          <i class="bi bi-bell"></i>
+          <span>All Notifications</span>
+        </a>
+      </li>
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'recent_activity' %}">
           <i class="bi bi-journal-text"></i>
