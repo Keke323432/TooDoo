@@ -1,9 +1,9 @@
 from django.views.generic.base import ContextMixin
 # class based views imported from django.generic
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, RedirectView
-from .models import Task, Category, Comment
+from .models import Task, Category, Comment, Conversation, ActivityLog, Notification
 # only logged in users can access this view
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from .forms import EditForm, CreateForm, CommentForm, AddCategoryForm
 from django.shortcuts import get_object_or_404, redirect, render
@@ -11,9 +11,7 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Conversation, ActivityLog, Notification
-from .forms import MessageForm
-from django.db.models import Q, Count
+from django.db.models import Q
 from datetime import timedelta, datetime
 
 
@@ -70,14 +68,17 @@ class TaskCountsMixin(ContextMixin):
         ).count()
 
         # Data for the line chart
-        dates = [start_date + timedelta(days=i) for i in range(8)]  # 8 to include end_date
-        priority_data = {priority: [0] * len(dates) for priority in ['low', 'medium', 'high', 'urgent']}
+        dates = [start_date + timedelta(days=i)
+                 for i in range(8)]  # 8 to include end_date
+        priority_data = {priority: [
+            0] * len(dates) for priority in ['low', 'medium', 'high', 'urgent']}
 
         # Count tasks per day
         for priority in priority_data.keys():
             for i, date in enumerate(dates):
                 start_of_day = datetime.combine(date, datetime.min.time())
-                end_of_day = start_of_day + timedelta(days=1)  # End of the day is 24 hours from start_of_day
+                # End of the day is 24 hours from start_of_day
+                end_of_day = start_of_day + timedelta(days=1)
                 count = Task.objects.filter(
                     Q(user=user) | Q(assigned_to=user),
                     priority=priority,
@@ -90,7 +91,8 @@ class TaskCountsMixin(ContextMixin):
         context['medium_priority'] = priority_data['medium']
         context['high_priority'] = priority_data['high']
         context['urgent_priority'] = priority_data['urgent']
-        context['dates'] = [date.strftime('%Y-%m-%dT%H:%M:%S.%fZ') for date in dates]  
+        context['dates'] = [date.strftime(
+            '%Y-%m-%dT%H:%M:%S.%fZ') for date in dates]
 
         return context
 
@@ -114,8 +116,6 @@ class TaskListView(LoginRequiredMixin, TaskCountsMixin, ListView):
         ).order_by('-timestamp')[:15]
 
         return context
-    
-    
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
@@ -158,7 +158,7 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         task = form.instance
-        
+
         # If the task is a clone (i.e., it has an parent task)
         if task.parent_task:
             # If "recurring" is unchecked on the clone
@@ -169,6 +169,7 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
                 parent_task.save()
 
         return super().form_valid(form)
+
 
 class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
@@ -408,88 +409,6 @@ def inbox(request):
     })
 
 
-@login_required
-def send_message(request, username):
-    recipient = get_object_or_404(User, username=username)
-
-    # Get the conversation that includes exactly both the logged-in user and the recipient
-    conversation = Conversation.objects.filter(
-        participants=request.user
-    ).filter(
-        participants=recipient
-    ).distinct()  # Ensure we only get unique conversations
-
-    # There should be only one conversation that includes both users
-    if conversation.exists():
-        conversation = conversation.first()
-    else:
-        # Create a new conversation if none exists
-        conversation = Conversation.objects.create()
-        conversation.participants.add(request.user, recipient)
-        conversation.save()
-
-    if request.method == 'POST':
-        form = MessageForm(request.POST)
-        if form.is_valid():
-            message = form.save(commit=False)
-            message.sender = request.user
-            message.conversation = conversation
-            message.save()
-            return redirect('message_detail', conversation_id=conversation.id)
-    else:
-        form = MessageForm()
-
-    return render(request, 'messaging/send_message.html', {
-        'form': form,
-        'recipient': recipient,
-    })
-
-
-@login_required
-def message_detail(request, conversation_id):
-    # Retrieve the conversation based on the ID
-    conversation = get_object_or_404(Conversation, id=conversation_id)
-
-    # Ensure that the logged-in user is a participant in the conversation
-    if request.user not in conversation.participants.all():
-        # Redirect to inbox if user is not a participant
-        return redirect('inbox')
-
-    messages = conversation.messages.order_by('created_at')
-
-    if request.method == 'POST':
-        form = MessageForm(request.POST)
-        if form.is_valid():
-            message = form.save(commit=False)
-            message.sender = request.user
-            message.conversation = conversation
-            message.save()
-            return redirect('message_detail', conversation_id=conversation_id)
-    else:
-        form = MessageForm()
-
-    return render(request, 'messaging/message_detail.html', {
-        'messages': messages,
-        'conversation': conversation,
-        'form': form,
-    })
-
-
-class DeleteMessageView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Conversation
-    template_name = 'messaging/delete_message.html'
-    success_url = reverse_lazy('inbox')  # Redirect to inbox after deletion
-
-    def get_object(self, queryset=None):
-        # Get the conversation object based on the URL parameter
-        return Conversation.objects.get(pk=self.kwargs.get('conversation_id'))
-
-    def test_func(self):
-        """Ensure that only participants of the conversation can delete it."""
-        conversation = self.get_object()
-        return self.request.user in conversation.participants.all()
-
-
 class RecentActivityView(ListView):
     model = ActivityLog
     template_name = 'recent_activity.html'
@@ -498,33 +417,31 @@ class RecentActivityView(ListView):
     ordering = ['-timestamp']
 
 
-
-
 def notifications_view(request):
     if request.user.is_authenticated:
-        notifications_unread = Notification.objects.filter(user=request.user, is_read=False)
-        notifications_read = Notification.objects.filter(user=request.user, is_read=True)
+        notifications_unread = Notification.objects.filter(
+            user=request.user, is_read=False)
+        notifications_read = Notification.objects.filter(
+            user=request.user, is_read=True)
         return render(request, 'notifications.html', {
             'notifications_unread': notifications_unread,
             'notifications_read': notifications_read,
         })
     return redirect('login')  # Adjust redirect if needed
-    
 
 
 def mark_notifications_as_read(request):
     if request.user.is_authenticated:
-        Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
-    return redirect('task_list')  
-
-
+        Notification.objects.filter(
+            user=request.user, is_read=False).update(is_read=True)
+    return redirect('task_list')
 
 
 class NotificationsView(ListView):
     model = Notification
     template_name = 'notifications.html'
     context_object_name = 'notifications'
-    
+
     def get_queryset(self):
         """
         Return all notifications for the authenticated user.
@@ -539,20 +456,23 @@ class NotificationsView(ListView):
         """
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['notificationss_unread'] = Notification.objects.filter(user=self.request.user, is_read=False).order_by('-timestamp')
-            context['notificationss_read'] = Notification.objects.filter(user=self.request.user, is_read=True).order_by('-timestamp')
+            context['notificationss_unread'] = Notification.objects.filter(
+                user=self.request.user, is_read=False).order_by('-timestamp')
+            context['notificationss_read'] = Notification.objects.filter(
+                user=self.request.user, is_read=True).order_by('-timestamp')
         else:
             context['notificationss_unread'] = []
             context['notificationss_read'] = []
         return context
-    
-    
+
+
 @login_required
 def mark_category_global(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     category.is_global = True
     category.save()
     return redirect('category_list')
+
 
 @login_required
 def unmark_category_global(request, category_id):

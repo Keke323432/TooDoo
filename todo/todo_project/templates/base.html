@@ -65,72 +65,8 @@
         <li class="nav-item dropdown">
           <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
             <i class="bi bi-chat-left-text"></i>
-            {% if latest_conversations.count > 0 %}
-            <span class="badge bg-success badge-number">{{ latest_conversations|length }}</span>
-        {% endif %}
+            <span class="badge bg-success badge-number"></span>
           </a><!-- End Messages Icon -->
-
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
-            <li class="dropdown-header">
-              Latest Messages                         
-              <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2"></span></a>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            {% for conversation in latest_conversations %}
-              {% if conversation.messages.exists %}
-                {% with last_message=conversation.messages.last %}
-                  <li class="message-item">
-                    <a href="{% url 'message_detail' conversation.id %}">
-                      <img src="assets/img/default-avatar.jpg" alt="" class="rounded-circle">
-                      <div>
-                        <!-- Display participant names -->
-                        <p><strong>
-                          {% for participant in conversation.participants.all %}
-                            {{ participant.username }}{% if not forloop.last %}, {% endif %}
-                          {% endfor %}
-                        </strong></p>
-                        <p><strong>{{ last_message.sender.username }}:</strong> {{ last_message.body|slice:":30" }}</p>
-                        <p>{{ last_message.created_at|date:"H:i d-m-Y" }}</p>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-                {% endwith %}
-              {% else %}
-                <li class="message-item">
-                    <a href="{% url 'message_detail' conversation.id %}">
-                      <img src="assets/img/default-avatar.jpg" alt="" class="rounded-circle">
-                      <div>
-                        <!-- Display participant names -->
-                        <p><strong>
-                          {% for participant in conversation.participants.all %}
-                            {{ participant.username }}{% if not forloop.last %}, {% endif %}
-                          {% endfor %}
-                        </strong></p>
-                        <p>No messages</p>
-                      </div>
-                    </a>
-                  </li>
-              {% endif %}
-            {% empty %}
-              <li class="message-item">
-                <a href="#">
-                  <div>
-                    <p>No conversations found.</p>
-                  </div>
-                </a>
-              </li>
-            {% endfor %}
-            <li class="dropdown-footer">
-              <a href="{% url 'inbox' %}">Show all conversations</a>
-            </li>
-          </ul><!-- End Messages Dropdown Items -->
-        </li><!-- End Messages Nav -->
-
         <li class="nav-item dropdown">
           <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
             <i class="bi bi-bell"></i>
@@ -294,21 +230,13 @@
           <span>Users</span>
         </a>
       </li>
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'edit_profile' %}">
-          <i class="bi bi-person"></i>
-          <span>Profile</span>
-        </a>
-      </li>
-
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'inbox' %}">
           <i class="bi bi-inbox"></i>
           <span>Inbox</span>
         </a>
       </li>
-      <li class="nav-item"></li>
+      <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'notifications' %}">
           <i class="bi bi-bell"></i>
           <span>All Notifications</span>
@@ -320,7 +248,12 @@
           <span>Recent Activity</span>
         </a>
       </li>
-
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'chatpage' %}">
+          <i class="ri ri-fire-line"></i>
+          <span>Campfire</span>
+        </a>
+      </li>
     </ul>
 
   </aside><!-- End Sidebar -->

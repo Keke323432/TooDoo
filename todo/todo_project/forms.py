@@ -1,5 +1,5 @@
 from django import forms
-from .models import Task, Category, Comment, Message
+from .models import Task, Category, Comment
 from django.contrib.auth.models import User
 
 class EditForm(forms.ModelForm):
@@ -101,11 +101,3 @@ class CommentForm(forms.ModelForm):
             'body': forms.Textarea(attrs={'class': 'form-control'}),
         }
 
-
-class MessageForm(forms.ModelForm):
-    class Meta:
-        model = Message
-        fields = [ 'body']
-        widgets = {
-            'body': forms.Textarea(attrs={'class': 'form-control', }),
-        }

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TaskCreateView, TaskUpdateView, TaskDeleteView,TaskListView,CategoryListView,AddCategoryView,TaskByCategoryView,CategoryDeleteView,AllTaskListView, CompletedTaskListView,ScheduledTaskListView, OverdueTaskListView,SearchTaskView,mark_completed,ClearCompletedTasksView,AddCommentView,EditCommentView,DeleteCommentView,RecurringListView,BookmarkView,DeleteMessageView,RecentActivityView,mark_notifications_as_read,NotificationsView,mark_category_global,unmark_category_global
+from .views import TaskCreateView, TaskUpdateView, TaskDeleteView,TaskListView,CategoryListView,AddCategoryView,TaskByCategoryView,CategoryDeleteView,AllTaskListView, CompletedTaskListView,ScheduledTaskListView, OverdueTaskListView,SearchTaskView,mark_completed,ClearCompletedTasksView,AddCommentView,EditCommentView,DeleteCommentView,RecurringListView,BookmarkView,RecentActivityView,mark_notifications_as_read,NotificationsView,mark_category_global,unmark_category_global
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views
@@ -27,9 +27,6 @@ urlpatterns = [
     path('recurring_list/', RecurringListView.as_view(), name='recurring_list'),
     path('bookmark_list/', BookmarkView.as_view(), name='bookmark_list'),
     path('inbox/', views.inbox, name='inbox'),
-    path('message/send/<str:username>/', views.send_message, name='send_message'),
-    path('message/<int:conversation_id>/', views.message_detail, name='message_detail'),
-    path('message/delete/<int:conversation_id>/', DeleteMessageView.as_view(), name='delete_message'),
     path('recent_activity/', RecentActivityView.as_view(), name='recent_activity'),
     path('mark-as-read/', mark_notifications_as_read, name='mark_notifications_as_read'),
     path('notifications/', NotificationsView.as_view(), name='notifications'),
