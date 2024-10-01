@@ -41,7 +41,7 @@
                   <td>{{ user.profile.job_title }}</td>  <!-- Access job title from profile -->
                   <td>{{ user.date_joined|date:"Y-m-d" }}</td>  <!-- Format date joined -->
                   <td>
-                    <a href="{% url 'send_message' user.username %}" class="a-list">Send Message</a>
+                    <a href="{% url 'start-chat' user.id %}" class="a-list">Send Message</a>
                 </td>
                 </tr>
                 {% endfor %}

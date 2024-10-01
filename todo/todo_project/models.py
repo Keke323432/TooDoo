@@ -91,7 +91,8 @@ class Conversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Conversation between {', '.join(user.username for user in self.participants.all())}"
+        return f"Conversation between {', '.join([user.username for user in self.participants.all()])}"
+
 
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -101,6 +102,15 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender.username}: {self.content[:20]}"
+    
+class PrivateMessage(models.Model):
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender.username}: {self.content} at {self.timestamp}"
     
     
 class ActivityLog(models.Model):

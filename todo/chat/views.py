@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
-from todo_project.models import Message
-
+from django.shortcuts import render, redirect,get_object_or_404
+from todo_project.models import Message, Conversation, PrivateMessage
+from django.contrib.auth.models import User
 
 def chatPage(request, *args, **kwargs):
     print("Chat page view called")  # Debugging
@@ -15,3 +15,42 @@ def chatPage(request, *args, **kwargs):
         'messages': messages
     }
     return render(request, "chat/chatpage.html", context)
+
+
+
+
+
+def private_chat_page(request, conversation_id):
+    if not request.user.is_authenticated:
+        return redirect("login-user")
+
+    # Fetch the conversation and its messages
+    conversation = Conversation.objects.get(id=conversation_id)
+    messages = conversation.messages.all().order_by('timestamp')
+
+    context = {
+        'conversation': conversation,
+        'messages': messages
+    }
+    return render(request, "chat/private_chat.html", context)
+
+
+
+
+
+def start_chat(request, user_id):
+    if not request.user.is_authenticated:
+        return redirect('login-user')
+
+    other_user = get_object_or_404(User, id=user_id)
+
+    # Get the conversation between the two users
+    conversation = Conversation.objects.filter(participants=other_user).filter(participants=request.user).first()
+
+    # If no conversation exists, create a new one
+    if not conversation:
+        conversation = Conversation.objects.create()
+        conversation.participants.add(request.user, other_user)
+
+    # Redirect to the private chat page with the conversation ID
+    return redirect('private-chat-page', conversation_id=conversation.id)
