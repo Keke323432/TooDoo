@@ -235,8 +235,13 @@ class AllTaskListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
         # Include tasks created by the user or assigned to the user
-        queryset = Task.objects.filter(Q(user=user) | Q(assigned_to=user))
-        return queryset
+        return Task.objects.filter(Q(user=user) | Q(assigned_to=user))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()  # Add categories to context
+        return context
+
 
 
 class CompletedTaskListView(LoginRequiredMixin, ListView):
@@ -266,6 +271,11 @@ class ScheduledTaskListView(LoginRequiredMixin, ListView):
         queryset = Task.objects.filter(
             user=user,  due_date__gte=now, due_date__isnull=False)
         return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()  # Add categories to context
+        return context
 
 
 class OverdueTaskListView(LoginRequiredMixin, ListView):
@@ -280,6 +290,11 @@ class OverdueTaskListView(LoginRequiredMixin, ListView):
         queryset = Task.objects.filter(
             user=user, due_date__lt=now, due_date__isnull=False)
         return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()  # Add categories to context
+        return context
 
 
 class SearchTaskView(LoginRequiredMixin, ListView):
@@ -293,6 +308,11 @@ class SearchTaskView(LoginRequiredMixin, ListView):
             return Task.objects.filter(user=self.request.user, title__icontains=query)
         else:
             return Task.objects.none()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()  # Add categories to context
+        return context
 
 
 def mark_completed(request):
@@ -387,6 +407,11 @@ class RecurringListView(LoginRequiredMixin, ListView):
             completed=False,
         )
         return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()  # Add categories to context
+        return context
 
 
 class BookmarkView(LoginRequiredMixin, ListView):
