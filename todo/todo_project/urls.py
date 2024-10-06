@@ -26,7 +26,6 @@ urlpatterns = [
     path('delete_comment/<int:pk>/comment/', DeleteCommentView.as_view(), name='delete_comment'),
     path('recurring_list/', RecurringListView.as_view(), name='recurring_list'),
     path('bookmark_list/', BookmarkView.as_view(), name='bookmark_list'),
-    path('inbox/', views.inbox, name='inbox'),
     path('recent_activity/', RecentActivityView.as_view(), name='recent_activity'),
     path('mark-as-read/', mark_notifications_as_read, name='mark_notifications_as_read'),
     path('notifications/', NotificationsView.as_view(), name='notifications'),

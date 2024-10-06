@@ -400,14 +400,6 @@ class BookmarkView(LoginRequiredMixin, ListView):
         return queryset
 
 
-def inbox(request):
-    # Retrieve all conversations that involve the logged-in user
-    conversations = Conversation.objects.filter(participants=request.user)
-
-    return render(request, 'messaging/inbox.html', {
-        'conversations': conversations,
-    })
-
 
 class RecentActivityView(ListView):
     model = ActivityLog

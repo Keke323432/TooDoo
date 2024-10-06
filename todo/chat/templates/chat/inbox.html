@@ -28,18 +28,17 @@
                 {% if conversation.messages.exists %}
                 <tr>
                   <td>
-                  {% for participant in conversation.participants.all %}
+                    {% for participant in conversation.participants.all %}
                       {{ participant.username }}{% if not forloop.last %}, {% endif %}
-                  {% endfor %}
-              </td>
+                    {% endfor %}
+                  </td>
                   {% with conversation.messages.last as last_message %}
-                  
-                  <td>{{ last_message.body|slice:":30" }}{% if last_message.body|length > 30 %}...{% endif %}</td>
-                  <td>{{ last_message.created_at|date:"Y-m-d H:i" }}</td>
+                  <td>{{ last_message.content|slice:":30" }}{% if last_message.content|length > 30 %}...{% endif %}</td>
+                  <td>{{ last_message.timestamp|date:"Y-m-d H:i" }}</td>
                   <td>
-                    <a href="{% url 'message_detail' conversation.id %}" class="btn btn-primary">View </a>
-                    <a href="{% url 'delete_message' conversation.id %}" class="btn btn-danger">Delete</a>
-                </td>
+                    <a href="{% url 'start-chat' user.id %}" class="btn btn-primary">View</a>
+                    <a href="{% url 'delete_chat' conversation.id %}" class="btn btn-danger">Delete</a>
+                  </td>
                   {% endwith %}
                 </tr>
                 {% else %}
