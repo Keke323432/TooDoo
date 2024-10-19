@@ -19,7 +19,7 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">
-              <a href="{% url 'add_category' %}" class=" bi bi-plus-circle btn btn-success btn-sm">  Add New</a>
+              <a href="{% url 'add_category' %}" class="bi bi-plus-circle btn btn-success btn-sm">  Add New</a>
             </h5>
 
             <!-- List group With badges -->
@@ -29,15 +29,15 @@
                 <a href="{% url 'tasks_by_category' category.id %}" class="a-list">{{ category.name }}</a>
 
                 <div>
-                  {% if not category.is_global %}
-                  <form method="post" action="{% url 'mark_global' category.id %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary btn-sm">Add to Sidebar</button>
-                  </form>
-                  {% else %}
+                  {% if category.id in user_categories %}
                   <form method="post" action="{% url 'unmark_global' category.id %}" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-secondary btn-sm">Remove from Sidebar</button>
+                  </form>
+                  {% else %}
+                  <form method="post" action="{% url 'mark_global' category.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-sm">Add to Sidebar</button>
                   </form>
                   {% endif %}
 
