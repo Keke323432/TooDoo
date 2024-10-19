@@ -9,8 +9,17 @@ class Category(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     color = models.CharField(max_length=7, blank=True, default='#FFFFFF')  
     is_global = models.BooleanField(default=False)
+
     def __str__(self):
         return self.name + ''
+
+class UserCategory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'category')  # Ensure each user can only add a category once
+
 
 def one_week_hence():
     return datetime.now() + timedelta(weeks=1)

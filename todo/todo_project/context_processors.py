@@ -1,5 +1,6 @@
-from .models import Profile, Category,Conversation,Notification
+from .models import Profile, Category,Conversation,Notification, UserCategory
 from django.db.models import Max
+from django.db.models import Q
 
 
 
@@ -11,14 +12,15 @@ def profile_context(request):              # this pulls the template globally. C
     return {}
 
 
-
 def sidebar_categories(request):
     if request.user.is_authenticated:
-        # Fetch only global categories
-        categories = Category.objects.filter(is_global=True)
+        # Fetch only categories marked by the user for their sidebar
+        categories = UserCategory.objects.filter(user=request.user).select_related('category')
+        return {'categoriess': [user_category.category for user_category in categories]}
     else:
-        categories = Category.objects.none()  # No categories for unauthenticated users
-    return {'categoriess': categories}
+        return {'categoriess': []}  # No categories for unauthenticated users
+
+
 
 
 def latest_conversations(request):

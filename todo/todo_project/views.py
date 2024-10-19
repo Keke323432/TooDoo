@@ -1,7 +1,7 @@
 from django.views.generic.base import ContextMixin
 # class based views imported from django.generic
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, RedirectView
-from .models import Task, Category, Comment, Conversation, ActivityLog, Notification
+from .models import Task, Category, Comment, Conversation, ActivityLog, Notification, UserCategory
 # only logged in users can access this view
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
@@ -43,7 +43,6 @@ class TaskCountsMixin(ContextMixin):
             completed=False
         ).count()
         context['completed_tasks_count'] = Task.objects.filter(
-            Q(user=user) | Q(assigned_to=user),
             completed=True
         ).count()
         context['low_tasks_count'] = Task.objects.filter(
@@ -143,27 +142,21 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('task_list')
 
     def get_queryset(self):
-        # Include tasks for both the creator and the assignee
-        return Task.objects.filter(
-            Q(user=self.request.user) | Q(assigned_to=self.request.user)
-        )
+        # Return all tasks without any restrictions on user
+        return Task.objects.all()
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        form.fields['category'].queryset = Category.objects.filter(
-            Q(user=self.request.user) | Q(user__in=User.objects.filter(
-                task__assigned_to=self.request.user))
-        ).distinct()
+        # Remove restrictions on categories so all categories are visible
+        form.fields['category'].queryset = Category.objects.all()
         return form
 
     def form_valid(self, form):
         task = form.instance
 
-        # If the task is a clone (i.e., it has an parent task)
+        # Handle recurring tasks if necessary
         if task.parent_task:
-            # If "recurring" is unchecked on the clone
             if not form.cleaned_data['recurring']:
-                # Find the parent task and set its "recurring" field to False
                 parent_task = task.parent_task
                 parent_task.recurring = False
                 parent_task.save()
@@ -187,6 +180,17 @@ class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     template_name = 'category_list.html'
     context_object_name = 'categories'
+
+    def get_queryset(self):
+        return Category.objects.all()  # Fetch all categories
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Fetch UserCategory objects for the current user
+        user_categories = UserCategory.objects.filter(user=self.request.user).values_list('category_id', flat=True)
+        # Pass the IDs of categories added to the sidebar by the user
+        context['user_categories'] = user_categories
+        return context
 
 
 class AddCategoryView(LoginRequiredMixin, CreateView):
@@ -230,18 +234,28 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
 class AllTaskListView(LoginRequiredMixin, ListView):
     model = Task
     template_name = 'all_list.html'
-    context_object_name = 'tasks'  # This can be used in the template to get the objects
+    context_object_name = 'tasks'
 
     def get_queryset(self):
         user = self.request.user
-        # Include tasks created by the user or assigned to the user
-        return Task.objects.filter(Q(user=user) | Q(assigned_to=user))
+        # Fetch all tasks created by the user or assigned to the user
+        queryset = Task.objects.filter(Q(user=user) | Q(assigned_to=user)).select_related('category')
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()  # Add categories to context
-        return context
+        user = self.request.user
+        
+        # Get categories that have tasks created by or assigned to the user
+        categories_with_tasks = Category.objects.filter(
+            task__in=Task.objects.filter(Q(user=user) | Q(assigned_to=user))
+        ).distinct()
 
+        # Pass tasks grouped by categories, including uncategorized
+        context['tasks'] = self.get_queryset()
+        context['categories'] = categories_with_tasks
+
+        return context
 
 
 class CompletedTaskListView(LoginRequiredMixin, ListView):
@@ -251,7 +265,7 @@ class CompletedTaskListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         # Filter tasks to only include completed ones
-        return Task.objects.filter(completed=True, user=self.request.user)
+        return Task.objects.filter(completed=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -274,7 +288,17 @@ class ScheduledTaskListView(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()  # Add categories to context
+        user = self.request.user
+        
+        # Get categories that have tasks created by or assigned to the user
+        categories_with_tasks = Category.objects.filter(
+            task__in=Task.objects.filter(Q(user=user) | Q(assigned_to=user))
+        ).distinct()
+
+        # Pass tasks grouped by categories, including uncategorized
+        context['tasks'] = self.get_queryset()
+        context['categories'] = categories_with_tasks
+
         return context
 
 
@@ -293,7 +317,17 @@ class OverdueTaskListView(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()  # Add categories to context
+        user = self.request.user
+        
+        # Get categories that have tasks created by or assigned to the user
+        categories_with_tasks = Category.objects.filter(
+            task__in=Task.objects.filter(Q(user=user) | Q(assigned_to=user))
+        ).distinct()
+
+        # Pass tasks grouped by categories, including uncategorized
+        context['tasks'] = self.get_queryset()
+        context['categories'] = categories_with_tasks
+
         return context
 
 
@@ -308,11 +342,6 @@ class SearchTaskView(LoginRequiredMixin, ListView):
             return Task.objects.filter(user=self.request.user, title__icontains=query)
         else:
             return Task.objects.none()
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()  # Add categories to context
-        return context
 
 
 def mark_completed(request):
@@ -410,7 +439,17 @@ class RecurringListView(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()  # Add categories to context
+        user = self.request.user
+        
+        # Get categories that have tasks created by or assigned to the user
+        categories_with_tasks = Category.objects.filter(
+            task__in=Task.objects.filter(Q(user=user) | Q(assigned_to=user))
+        ).distinct()
+
+        # Pass tasks grouped by categories, including uncategorized
+        context['tasks'] = self.get_queryset()
+        context['categories'] = categories_with_tasks
+
         return context
 
 
@@ -484,16 +523,13 @@ class NotificationsView(ListView):
 
 
 @login_required
-def mark_category_global(request, category_id):
+def mark_global(request, category_id):
     category = get_object_or_404(Category, id=category_id)
-    category.is_global = True
-    category.save()
-    return redirect('category_list')
-
+    UserCategory.objects.get_or_create(user=request.user, category=category)  # Add category to user's sidebar
+    return redirect('category_list')  # Redirect to category list or any other page
 
 @login_required
-def unmark_category_global(request, category_id):
-    category = get_object_or_404(Category, id=category_id)
-    category.is_global = False
-    category.save()
-    return redirect('category_list')
+def unmark_global(request, category_id):
+    user_category = get_object_or_404(UserCategory, user=request.user, category_id=category_id)
+    user_category.delete()  # Remove category from user's sidebar
+    return redirect('category_list')  # Redirect to category list or any other page
